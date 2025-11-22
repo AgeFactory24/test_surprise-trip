@@ -13,8 +13,11 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 検索除け -->
     <meta name="robots" content="noindex, nofollow">
-    <title>Test_Surprise Trip 2025</title>
+
+    <title>Surprise Trip 2025</title>
     <!-- Google Fonts: Yomogi (手書き風) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,7 +79,7 @@
 
         /* --- Components --- */
         
-        /* Polaroid Photo (Timeline用) */
+        /* Polaroid Photo */
         .polaroid {
             background: white;
             padding: 10px 10px 30px 10px;
@@ -177,13 +180,12 @@
             100% { opacity: 1; }
         }
 
-        /* 重要: Canvas(画像)のブレンドモード設定 */
+        /* ★重要: Canvas(画像)のブレンドモード設定 */
         #wave-canvas {
             mix-blend-mode: multiply;
             filter: contrast(1.1); 
             
-            /* 画像の周囲をぼかし */
-            /* 中心から60%まではハッキリ表示し、そこから外側に向かって透明にする */
+            /* 画像の周囲ぼかし */
             -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
             mask-image: radial-gradient(circle, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
         }
@@ -234,10 +236,10 @@
             backdrop-filter: blur(2px);
         }
         
-        /* チェキモーダル内のスタイル */
+        /* チェキ風モーダル内のスタイル */
         .cheki-card {
             background: white;
-            padding: 15px 15px 60px 15px; 
+            padding: 15px 15px 60px 15px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
             transform: rotate(2deg);
             max-width: 100%;
@@ -256,10 +258,31 @@
 </head>
 <body class="text-gray-800">
 
+    <!-- ★ パスワードロック画面 (最前面) -->
+    <div id="password-overlay" class="fixed inset-0 z-[100] bg-[#FAF9F6] flex flex-col items-center justify-center p-4 text-center">
+        <div class="max-w-md w-full relative">
+            <i class="ph-fill ph-lock-key text-6xl text-[#E63946] mb-4"></i>
+            <h2 class="text-2xl font-bold mb-2">合言葉を入力してください</h2>
+            <p class="text-sm text-gray-500 mb-6">※旅行の日付 (4桁) です</p>
+            
+            <input type="tel" id="password-input" maxlength="4" placeholder="1234" 
+                   class="border-2 border-gray-400 rounded-lg p-3 w-32 text-center text-3xl mb-6 font-bold outline-none focus:border-[#E63946] tracking-widest bg-white" />
+            
+            <button onclick="checkPassword()" class="hand-drawn-btn w-full shadow-lg flex justify-center items-center gap-2">
+                <i class="ph-bold ph-key"></i> ロック解除
+            </button>
+            
+            <p id="password-error" class="text-red-500 mt-4 font-bold hidden animate-pulse">
+                <i class="ph-bold ph-warning"></i> 違います！
+            </p>
+        </div>
+    </div>
+
     <!-- 1. COUNTDOWN OVERLAY -->
-    <div id="countdown-overlay" class="fixed inset-0 z-50 bg-[#FAF9F6] flex flex-col items-center justify-center p-4 text-center">
+    <div id="countdown-overlay" class="fixed inset-0 z-50 bg-[#FAF9F6] flex flex-col items-center justify-center p-4 text-center hidden">
         <div class="max-w-md w-full relative">
             <!-- Decorative Stamps -->
+            <!-- ビールジョッキ: 黄色系(text-amber-500) -->
             <i class="ph-fill ph-beer-stein absolute -top-10 right-0 text-4xl text-amber-500 opacity-50"></i>
             <i class="ph-fill ph-flower absolute bottom-20 left-0 text-4xl text-red-300 opacity-50"></i>
 
@@ -298,7 +321,7 @@
             
             <!-- Opening Image Container (Center Fixed) -->
             <div id="opening-image-container" class="w-full max-w-md relative z-10 flex justify-center items-center">
-                <!-- 透明背景 -->
+                <!-- 白枠(polaroid)クラスを削除し、透明背景に変更 -->
                 <div class="rotate-0 transition-transform">
                     <!-- CANVAS for Wave Effect -->
                     <canvas id="wave-canvas" class="w-full h-auto block"></canvas>
@@ -309,7 +332,7 @@
             <div id="dest-badge" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center opacity-0 transition-opacity duration-500 w-full pointer-events-none">
                 <div class="absolute inset-0 bg-white/60 blur-xl -z-10 scale-150"></div>
                 
-                <!-- ★徳利とお猪口SVG -->
+                <!-- ★修正: 徳利とお猪口SVG (Gemini生成・改良版) -->
                 <svg class="w-32 h-32 text-blue-400 animate-bounce mb-4" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <!-- 徳利 -->
                     <g transform="translate(40, 20)">
@@ -343,7 +366,7 @@
                 
                 <div class="bg-white px-6 py-4 mt-2 hand-drawn-border text-center shadow-2xl pointer-events-auto">
                     <p class="text-sm text-gray-500">行き先は...</p>
-                    <!-- ★行き先の文言 -->
+                    <!-- ★バレたらどんまい -->
                     <h2 id="reveal-dest-name" class="text-4xl font-bold text-[#E63946]">新潟県</h2>
                     <p id="reveal-dest-desc" class="text-sm mt-1">おいしいお米とお酒の旅！</p>
                 </div>
@@ -448,7 +471,7 @@
                 <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>充電器(モバイルバッテリー含む)</span></li>
                 <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>着替え (2日分)</span></li>
                 <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>部屋着・防寒着</span></li>
-                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>タオル</span></li>
+                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>タオル1枚</span></li>
                 <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>常備薬（胃腸薬・頭痛薬）</span></li>
                 <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>洗面用具</span></li>
                 <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>雨具</span></li>
@@ -473,11 +496,14 @@
     <script>
         /* * CONFIGURATION & DATA
          */
+        // ★ パスワード設定 (秘匿化)
+        const SITE_PASSWORD_HASH = "MTIwMw==";
+
         const DEBUG_MODE = false; 
-        // ★ base64でのマスキングは時間あったら修正！ ★
+        
         // Dates
-        const UNLOCK_DATE = new Date("2025-11-23T06:20:00");
-        const MEMORY_UNLOCK_DATE = new Date("2025-11-25T00:00:00");
+        const UNLOCK_DATE = new Date("2025-11-23T07:20:00");
+        const MEMORY_UNLOCK_DATE = new Date("2025-12-25T00:00:00");
         
         // ★ OPENING IMAGE SETTING ★
         const OPENING_IMAGE_URL = "illustration.jpeg"; 
@@ -494,7 +520,9 @@
                     title: "横浜駅 集合", 
                     desc: "みんなでワクワク出発！", 
                     img: null,
-                    mapUrl: "https://maps.app.goo.gl/spL7HVKSX9sE8E7g7" 
+                    mapUrl: "https://maps.app.goo.gl/spL7HVKSX9sE8E7g7",
+                    location: "横浜駅",
+                    unlockTime: "06:00" 
                 },
                 { 
                     time: "07:52", 
@@ -502,7 +530,9 @@
                     title: "東京駅出発", 
                     desc: "新幹線で快適な移動。", 
                     img: "Tokyo.jpg",
-                    mapUrl: "https://maps.app.goo.gl/Y1DLXunyXeGxKdbn8" 
+                    mapUrl: "https://maps.app.goo.gl/Y1DLXunyXeGxKdbn8",
+                    location: "東京駅",
+                    unlockTime: "07:30" 
                 },
                 { 
                     time: "09:54", 
@@ -510,7 +540,9 @@
                     title: "上越妙高駅到着", 
                     desc: "寒い！？新潟県に到着！", 
                     img: "Joetsu.jpg",
-                    mapUrl: "https://maps.app.goo.gl/ey7c3EYfeXrXxQeM9" 
+                    mapUrl: "https://maps.app.goo.gl/ey7c3EYfeXrXxQeM9",
+                    location: "上越妙高駅",
+                    unlockTime: "09:30"
                 },
                 { 
                     time: "10:00", 
@@ -518,7 +550,8 @@
                     title: "レンタカー借りる", 
                     desc: "安全運転で行きましょう。", 
                     img: null,
-                    mapUrl: "https://maps.app.goo.gl/feucUq4gfMBUbPcg6" 
+                    mapUrl: "https://maps.app.goo.gl/feucUq4gfMBUbPcg6",
+                    location: "ニコニコレンタカー 上越妙高駅店"
                 },
                 { 
                     time: "11:00", 
@@ -526,7 +559,8 @@
                     title: "昼食", 
                     desc: "皆ずっと行きたかった！上越家！", 
                     img: "Joetsuya.jpg",
-                    mapUrl: "https://maps.app.goo.gl/VP81ERcj1fsakhGs6" 
+                    mapUrl: "https://maps.app.goo.gl/VP81ERcj1fsakhGs6",
+                    location: "家系ラーメン 上越家"
                 },
                 { 
                     time: "12:00", 
@@ -534,7 +568,8 @@
                     title: "観光スポット①", 
                     desc: "まずはここから観光スタート！", 
                     img: "Naenataki.jpg",
-                    mapUrl: "https://maps.app.goo.gl/4wnGBpDCQQUor3SG9" 
+                    mapUrl: "https://maps.app.goo.gl/4wnGBpDCQQUor3SG9",
+                    location: "苗名滝"
                 },
                 { 
                     time: "15:00", 
@@ -542,7 +577,8 @@
                     title: "観光スポット②", 
                     desc: "お酒の試飲あります！", 
                     img: "Joetsushu.jpg",
-                    mapUrl: "https://maps.app.goo.gl/UEDpYemoFYQHCvC18" 
+                    mapUrl: "https://maps.app.goo.gl/UEDpYemoFYQHCvC18",
+                    location: "上越酒造"
                 },
                 { 
                     time: "16:30", 
@@ -550,7 +586,8 @@
                     title: "観光スポット③", 
                     desc: "あの海を散策！", 
                     img: "Umi.jpg",
-                    mapUrl: "https://maps.app.goo.gl/wJvhSBzTWQeWUZJ39" 
+                    mapUrl: "https://maps.app.goo.gl/wJvhSBzTWQeWUZJ39",
+                    location: "直江津海水浴場"
                 },
                 { 
                     time: "17:30", 
@@ -558,7 +595,8 @@
                     title: "ホテル チェックイン", 
                     desc: "素敵な宿で一休み。", 
                     img: "Hotel.jpg",
-                    mapUrl: "https://maps.app.goo.gl/Nj3cEwhxrL7jfBfF9" 
+                    mapUrl: "https://maps.app.goo.gl/Nj3cEwhxrL7jfBfF9",
+                    location: "神の宮温泉 かわら亭"
                 },
                 { 
                     time: "19:00", 
@@ -566,7 +604,8 @@
                     title: "夜食", 
                     desc: "高田駅周辺で飲み会！", 
                     img: "Takada.jpg",
-                    mapUrl: "https://maps.app.goo.gl/hKJQuqchisoJoyno9" 
+                    mapUrl: "https://maps.app.goo.gl/hKJQuqchisoJoyno9",
+                    location: "高田駅"
                 }
             ],
             day2: [
@@ -576,7 +615,8 @@
                     title: "ホテル チェックアウト", 
                     desc: "宿どうでしたか？2日目も楽しみましょう！", 
                     img: "Hotel.jpg",
-                    mapUrl: "https://maps.app.goo.gl/Nj3cEwhxrL7jfBfF9" 
+                    mapUrl: "https://maps.app.goo.gl/Nj3cEwhxrL7jfBfF9",
+                    location: "神の宮温泉 かわら亭"
                 },
                 { 
                     time: "10:00", 
@@ -584,7 +624,8 @@
                     title: "観光スポット④", 
                     desc: "朝一番の観光へ。", 
                     img: "Hoshitoge.jpg",
-                    mapUrl: "https://maps.app.goo.gl/iZG7R2DvvqBEGC7e7" 
+                    mapUrl: "https://maps.app.goo.gl/iZG7R2DvvqBEGC7e7",
+                    location: "星峠の棚田"
                 },
                 { 
                     time: "11:00", 
@@ -592,15 +633,17 @@
                     title: "昼食", 
                     desc: "有名店らしい！お蕎麦！", 
                     img: "t-souhonten.jpg",
-                    mapUrl: "https://maps.app.goo.gl/g33WYZ8TssqFA1zF8" 
+                    mapUrl: "https://maps.app.goo.gl/g33WYZ8TssqFA1zF8",
+                    location: "小嶋屋総本店"
                 },
                 { 
                     time: "12:30", 
                     icon: "ph-camera", 
                     title: "観光スポット⑤", 
-                    desc: "最後の観光スポット。芸術を堪能！", 
+                    desc: "最後の観光スポット。", 
                     img: "MonET.jpg",
-                    mapUrl: "https://maps.app.goo.gl/UGhRxuD4GP4Nbvcn6" 
+                    mapUrl: "https://maps.app.goo.gl/UGhRxuD4GP4Nbvcn6",
+                    location: "MonET（現代美術館）"
                 },
                 { 
                     time: "14:00", 
@@ -608,7 +651,8 @@
                     title: "温泉", 
                     desc: "旅の疲れを癒やしましょう。", 
                     img: "Onsen.jpeg",
-                    mapUrl: "https://maps.app.goo.gl/pMpa3VLojmoWfewG7" 
+                    mapUrl: "https://maps.app.goo.gl/pMpa3VLojmoWfewG7",
+                    location: "ナステビュウ 湯の山"
                 },
                 { 
                     time: "17:30", 
@@ -616,7 +660,8 @@
                     title: "レンタカー返却", 
                     desc: "忘れ物しないように！", 
                     img: null,
-                    mapUrl: "https://maps.app.goo.gl/feucUq4gfMBUbPcg6" 
+                    mapUrl: "https://maps.app.goo.gl/feucUq4gfMBUbPcg6",
+                    location: "ニコニコレンタカー 上越妙高駅店"
                 },
                 { 
                     time: "18:00", 
@@ -624,7 +669,8 @@
                     title: "上越妙高駅出発", 
                     desc: "楽しめたかな？また来ようね！", 
                     img: "Joetsu.jpg",
-                    mapUrl: "https://maps.app.goo.gl/ey7c3EYfeXrXxQeM9" 
+                    mapUrl: "https://maps.app.goo.gl/ey7c3EYfeXrXxQeM9",
+                    location: "上越妙高駅"
                 },
                 { 
                     time: "20:00", 
@@ -632,7 +678,8 @@
                     title: "東京駅到着", 
                     desc: "ひとまずお疲れ様でした！横浜へ！", 
                     img: "Tokyo.jpg",
-                    mapUrl: "https://maps.app.goo.gl/Y1DLXunyXeGxKdbn8" 
+                    mapUrl: "https://maps.app.goo.gl/Y1DLXunyXeGxKdbn8",
+                    location: "東京駅"
                 }
             ]
         };
@@ -641,24 +688,55 @@
             { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+1", msg: "a", rotate: "rotate-2" },
             { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+2", msg: "b", rotate: "-rotate-2" },
             { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+3", msg: "c", rotate: "rotate-1" },
-            { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+4", msg: "また行きたいね", rotate: "-rotate-3" }
+            { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+4", msg: "d", rotate: "-rotate-3" }
         ];
 
         /*
          * CORE LOGIC
          */
         document.addEventListener('DOMContentLoaded', () => {
-            initApp();
+            // パスワード機能追加のため、initAppは直接呼ばず、checkPassword経由で呼ぶ
+            // initApp(); 
             setInterval(updateTimelineStatus, 60000);
             renderMemories(); 
         });
+
+        // ★ パスワードチェック機能 (Base64比較)
+        function checkPassword() {
+            const input = document.getElementById('password-input');
+            const errorMsg = document.getElementById('password-error');
+            const val = input.value;
+            
+            // 入力値をBase64にエンコードして比較
+            // btoaはASCII文字のみ対応。数字のパスワードなら問題なし。
+            try {
+                if (btoa(val) === SITE_PASSWORD_HASH) {
+                    // 正解: ロック解除
+                    document.getElementById('password-overlay').classList.add('hidden');
+                    // コンテンツ初期化開始 (カウントダウン表示へ)
+                    // 初期状態ではcountdownはhiddenなので、ここで表示制御を行う
+                    document.getElementById('countdown-overlay').classList.remove('hidden');
+                    initApp(); 
+                } else {
+                    throw new Error("Incorrect password");
+                }
+            } catch (e) {
+                // 不正解またはエラー
+                errorMsg.classList.remove('hidden');
+                input.classList.add('bg-red-100');
+                input.value = '';
+                setTimeout(() => {
+                    input.classList.remove('bg-red-100');
+                }, 500);
+            }
+        }
 
         function initApp() {
             const now = new Date();
             const isUnlocked = now >= UNLOCK_DATE || DEBUG_MODE;
 
             if (isUnlocked) {
-                const hasSeenMap = false; 
+                const hasSeenMap = localStorage.getItem('hasSeenMap'); 
                 
                 if (!hasSeenMap) {
                     startOpeningAnimation();
@@ -716,22 +794,25 @@
             img.onload = () => {
                 canvas.width = img.width;
                 canvas.height = img.height;
+                
                 canvas.classList.add('canvas-fade-in');
 
                 let t = 0;
                 let animationFrameId;
                 const startTime = Date.now();
-                const duration = 5500; 
+                const duration = 4000; 
 
                 function animateWave() {
                     const elapsed = Date.now() - startTime;
-                    t += 0.07;
+                    
+                    t += 0.05;
+
                     const waveOffset = (Math.sin(t * 0.3) * 50 + t * 100) % canvas.height;
 
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                     for (let y = 0; y < canvas.height; y++) {
-                        const dy = Math.sin((y + t * 10) * 0.07) * 50;
+                        const dy = Math.sin((y + t * 10) * 0.07) * 70;
                         const waveZone = (y + waveOffset) % canvas.height;
                         const intensity = waveZone < 120 ? (1 - waveZone / 120) : 0;
                         const shift = dy * intensity;
@@ -746,13 +827,15 @@
                     if (elapsed < duration) {
                         animationFrameId = requestAnimationFrame(animateWave);
                     } else {
+                        // アニメーション終了
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         
+                        // ★ここで発表までの「間」を調整
                         setTimeout(() => {
                             document.getElementById('dest-badge').classList.add('show');
                             document.getElementById('dest-badge').classList.remove('opacity-0');
-                        }, 300);
+                        }, 2000);
                     }
                 }
 
@@ -761,6 +844,7 @@
             
             img.onerror = () => {
                 alert("画像の読み込みに失敗しました。ファイル名を確認してください。");
+                // エラー時もテキスト書き換え処理は不要
                 document.getElementById('dest-badge').classList.add('show');
                 document.getElementById('dest-badge').classList.remove('opacity-0');
             };
@@ -792,6 +876,7 @@
             updateTimelineStatus();
             
             const now = new Date();
+            // Day 2 Unlock (12/4 00:00)
             const day2Unlock = new Date(DAY2_DATE + "T00:00:00");
             
             if (now < day2Unlock && !DEBUG_MODE) {
@@ -912,7 +997,14 @@
             
             let eventDateStr = (day === 'day1') ? DAY1_DATE : DAY2_DATE;
             let eventTime = new Date(`${eventDateStr}T${item.time}:00`);
-            let unlockTime = new Date(eventTime.getTime() - 60 * 60 * 1000);
+            
+            // ★修正: unlockTimeの設定がある場合はそれを優先、なければ1時間前
+            let unlockTime;
+            if (item.unlockTime) {
+                unlockTime = new Date(`${eventDateStr}T${item.unlockTime}:00`);
+            } else {
+                unlockTime = new Date(eventTime.getTime() - 60 * 60 * 1000);
+            }
 
             if (now < unlockTime && !DEBUG_MODE) {
                 const content = document.getElementById('modal-content-area');
@@ -925,14 +1017,14 @@
                             <span class="font-bold text-xl text-[#4A4A4A]">${unlockTime.getHours()}:${String(unlockTime.getMinutes()).padStart(2, '0')}</span><br>
                             に解禁されます。
                         </p>
-                        <p class="text-sm text-gray-400 mt-4">（予定時刻の1時間前）</p>
+                        <!-- unlockTimeがある場合は文言を変えるなどしても良いですが、シンプルに統一 -->
+                        <p class="text-sm text-gray-400 mt-4">（お楽しみ！）</p>
                     </div>
                 `;
                 openModal('detail-modal');
                 return;
             }
 
-            // マップリンクの決定
             const mapLink = item.mapUrl ? item.mapUrl : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('新潟県 ' + item.title)}`;
 
             const content = document.getElementById('modal-content-area');
@@ -945,13 +1037,21 @@
                     <i class="${item.icon} text-6xl text-[#E63946] mb-2"></i>
                     <p class="text-2xl font-bold font-hand text-[#E63946]">${item.time}</p>
                 </div>
-                <h3 class="text-3xl font-bold mb-4 border-b-2 border-dashed border-gray-300 pb-2">${item.title}</h3>
                 
                 ${imgHtml}
                 
-                <p class="text-lg leading-relaxed text-left mb-6 font-bold text-gray-600">
-                    ${item.desc}
-                </p>
+                <!-- ★修正: メッセージと行き先を表示するエリア -->
+                <div class="text-left mb-6 bg-white p-4 rounded-lg hand-drawn-border transform -rotate-1">
+                    <p class="text-lg leading-relaxed font-bold text-gray-600 mb-4">
+                        ${item.desc}
+                    </p>
+                    <div class="border-t-2 border-dashed border-gray-200 pt-3">
+                        <span class="text-xs text-gray-400 block mb-1">行き先:</span>
+                        <h3 class="text-2xl font-bold text-[#E63946] flex items-center gap-2">
+                            <i class="ph-fill ph-map-pin"></i> ${item.location || item.title}
+                        </h3>
+                    </div>
+                </div>
 
                 <a href="${mapLink}" target="_blank" 
                    class="hand-drawn-btn w-full block text-center no-underline">
