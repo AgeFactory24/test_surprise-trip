@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <noindex>
+    <title>Test_Surprise Trip 2025</title>
+    <!-- Google Fonts: Yomogi (手書き風) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Yomogi&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (Utility) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons (Phosphor Icons) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        /* --- Base Settings --- */
+        :root {
+            --color-main: #E63946;
+            --color-bg: #FAF9F6;
+            --color-text: #4A4A4A;
+            --color-accent: #457B9D;
+            --font-hand: 'Yomogi', cursive, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-hand);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            /* テクスチャ */
+            background-image: 
+                linear-gradient(90deg, rgba(200,200,200,0.05) 1px, transparent 1px),
+                linear-gradient(rgba(200,200,200,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow-x: hidden;
+        }
+
+        /* --- Hand-drawn Utilities --- */
+        .hand-drawn-border {
+            border: 2px solid var(--color-text);
+            border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+            background: white;
+            box-shadow: 2px 3px 0px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .hand-drawn-btn {
+            background-color: var(--color-accent);
+            color: white;
+            border: 2px solid var(--color-text);
+            border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+            padding: 0.75rem 1.5rem;
+            font-weight: bold;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .hand-drawn-btn:hover {
+            transform: scale(1.05) rotate(-1deg);
+            box-shadow: 2px 4px 0px var(--color-text);
+        }
+
+        /* --- Components --- */
+        
+        /* Polaroid Photo (Timeline用) */
+        .polaroid {
+            background: white;
+            padding: 10px 10px 30px 10px;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.2);
+            transform: rotate(-2deg);
+            transition: transform 0.3s;
+            border: 1px solid #ddd;
+        }
+        .polaroid:nth-child(even) { transform: rotate(1deg); }
+        .polaroid:hover { transform: scale(1.05) rotate(0deg); z-index: 10; }
+        .polaroid img {
+            width: 100%;
+            height: auto;
+            filter: sepia(20%);
+            display: block;
+        }
+
+        /* Timeline */
+        .timeline-line {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-image: linear-gradient(to bottom, var(--color-text) 50%, transparent 50%);
+            background-size: 4px 20px; /* Dotted line */
+            z-index: 0;
+        }
+        .timeline-progress {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            width: 4px;
+            background: var(--color-main);
+            z-index: 1;
+            transition: height 1s ease;
+        }
+        
+        .timeline-items-container {
+            position: relative;
+            z-index: 10; 
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 50px;
+            margin-bottom: 2rem;
+            opacity: 1;
+            transition: all 0.5s;
+            cursor: pointer;
+        }
+        /* Past events */
+        .timeline-item.past { opacity: 0.6; filter: grayscale(80%); }
+        /* Current event */
+        .timeline-item.current { 
+            transform: scale(1.02); 
+            opacity: 1;
+        }
+        .timeline-item.current .hand-drawn-border {
+            border-color: var(--color-main);
+            box-shadow: 0 0 15px rgba(230, 57, 70, 0.3);
+        }
+
+        .time-dot {
+            position: absolute;
+            left: 14px;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 2px solid var(--color-text);
+            border-radius: 50%;
+            z-index: 20;
+        }
+        .timeline-item.current .time-dot {
+            background: var(--color-main);
+            transform: scale(1.3);
+        }
+        .timeline-item.past .time-dot {
+            background: var(--color-text);
+        }
+
+        /* --- Opening Animation Styles --- */
+        #opening-overlay {
+            /* ★背景色を #B55C4F に固定 */
+            background-color: #B55C4F; 
+            transition: opacity 1s ease;
+        }
+        
+        /* Canvas自体のフェードイン用 */
+        .canvas-fade-in {
+            animation: simpleFadeIn 1s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes simpleFadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* 重要: Canvas(画像)のブレンドモード設定 */
+        #wave-canvas {
+            mix-blend-mode: multiply;
+            filter: contrast(1.1); 
+            
+            /* 画像の周囲をぼかし */
+            /* 中心から60%まではハッキリ表示し、そこから外側に向かって透明にする */
+            -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+            mask-image: radial-gradient(circle, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+        }
+
+        .map-pin {
+            position: absolute;
+            color: var(--color-main);
+            font-size: 3rem;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.5s ease;
+        }
+        .map-pin.show { opacity: 1; transform: translateY(0); }
+
+        /* --- Tab System --- */
+        .tab-btn {
+            padding: 10px;
+            border-bottom: 3px solid transparent;
+            opacity: 0.6;
+            transition: all 0.3s;
+        }
+        .tab-btn.active {
+            opacity: 1;
+            border-bottom: 3px solid var(--color-main);
+            color: var(--color-main);
+            transform: scale(1.1);
+        }
+
+        /* --- Utilities --- */
+        .hidden { display: none !important; }
+        .fade-out { opacity: 0; pointer-events: none; }
+        .fade-in { animation: fadeIn 1s forwards; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Lock Overlay */
+        .lock-overlay {
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Modal */
+        .modal-backdrop {
+            background: rgba(74, 74, 74, 0.8);
+            backdrop-filter: blur(2px);
+        }
+        
+        /* チェキモーダル内のスタイル */
+        .cheki-card {
+            background: white;
+            padding: 15px 15px 60px 15px; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            transform: rotate(2deg);
+            max-width: 100%;
+        }
+        .cheki-text {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-family: 'Yomogi', cursive;
+            font-size: 1.2rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- 1. COUNTDOWN OVERLAY -->
+    <div id="countdown-overlay" class="fixed inset-0 z-50 bg-[#FAF9F6] flex flex-col items-center justify-center p-4 text-center">
+        <div class="max-w-md w-full relative">
+            <!-- Decorative Stamps -->
+            <i class="ph-fill ph-beer-stein absolute -top-10 right-0 text-4xl text-amber-500 opacity-50"></i>
+            <i class="ph-fill ph-flower absolute bottom-20 left-0 text-4xl text-red-300 opacity-50"></i>
+
+            <h1 class="text-2xl mb-2 font-bold text-[#E63946]">SURPRISE TRIP</h1>
+            <h2 class="text-xl mb-6">旅のしおり解禁まで</h2>
+            
+            <!-- Timer -->
+            <div id="timer" class="text-5xl md:text-6xl font-bold mb-8 tracking-widest text-[#4A4A4A]">
+                00:00:00:00
+            </div>
+
+            <!-- Important Message -->
+            <div class="hand-drawn-border p-6 mb-8 transform rotate-1 bg-yellow-50">
+                <p class="text-red-500 font-bold text-lg mb-2">
+                    <i class="ph-fill ph-warning-circle"></i> 重要
+                </p>
+                <p class="text-xl leading-relaxed font-bold">
+                    12月3日(水)は<br>
+                    <span class="text-3xl border-b-4 border-red-300 inline-block transform -rotate-2">横浜駅</span> に<br>
+                    <span class="text-2xl text-[#E63946]">6:30まで</span><br>
+                    にお越しください！
+                </p>
+            </div>
+
+            <!-- Packing List Button -->
+            <button onclick="openModal('packing-modal')" class="hand-drawn-btn w-full max-w-xs mx-auto flex items-center justify-center gap-2">
+                <i class="ph-bold ph-backpack"></i>
+                持ち物リストを見る
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. OPENING ANIMATION OVERLAY -->
+    <div id="opening-overlay" class="fixed inset-0 z-40 hidden flex items-center justify-center overflow-hidden">
+        <div class="relative w-full h-full flex items-center justify-center p-4">
+            
+            <!-- Opening Image Container (Center Fixed) -->
+            <div id="opening-image-container" class="w-full max-w-md relative z-10 flex justify-center items-center">
+                <!-- 透明背景 -->
+                <div class="rotate-0 transition-transform">
+                    <!-- CANVAS for Wave Effect -->
+                    <canvas id="wave-canvas" class="w-full h-auto block"></canvas>
+                </div>
+            </div>
+            
+            <!-- Badge (Initially Hidden) -->
+            <div id="dest-badge" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center opacity-0 transition-opacity duration-500 w-full pointer-events-none">
+                <div class="absolute inset-0 bg-white/60 blur-xl -z-10 scale-150"></div>
+                
+                <!-- ★徳利とお猪口SVG -->
+                <svg class="w-32 h-32 text-blue-400 animate-bounce mb-4" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 徳利 -->
+                    <g transform="translate(40, 20)">
+                        <path d="M35 10 
+                                 C35 10, 25 35, 25 50 
+                                 C25 70, 10 80, 10 110 
+                                 C10 145, 30 160, 60 160 
+                                 C90 160, 110 145, 110 110 
+                                 C110 80, 95 70, 95 50 
+                                 C95 35, 85 10, 85 10 
+                                 Z" 
+                              fill="white" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+                        <ellipse cx="60" cy="10" rx="25" ry="6" fill="white" stroke="currentColor" stroke-width="3"/>
+                        <!-- 模様 -->
+                        <path d="M14 100 Q60 110 106 100" stroke="currentColor" stroke-width="3" fill="none"/>
+                        <path d="M12 120 Q60 130 108 120" stroke="currentColor" stroke-width="3" fill="none"/>
+                    </g>
+                    <!-- お猪口 -->
+                    <g transform="translate(120, 110)">
+                        <path d="M5 15 
+                                 C5 40, 20 45, 25 50 
+                                 L25 55 
+                                 Q35 58 45 55 
+                                 L45 50 
+                                 C50 45, 65 40, 65 15 
+                                 Z" 
+                              fill="white" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+                        <ellipse cx="35" cy="15" rx="30" ry="6" fill="#FEFCE8" stroke="currentColor" stroke-width="3"/>
+                    </g>
+                </svg>
+                
+                <div class="bg-white px-6 py-4 mt-2 hand-drawn-border text-center shadow-2xl pointer-events-auto">
+                    <p class="text-sm text-gray-500">行き先は...</p>
+                    <!-- ★行き先の文言 -->
+                    <h2 id="reveal-dest-name" class="text-4xl font-bold text-[#E63946]">新潟県</h2>
+                    <p id="reveal-dest-desc" class="text-sm mt-1">おいしいお米とお酒の旅！</p>
+                </div>
+                <button onclick="finishOpeningAnimation()" class="mt-8 hand-drawn-btn shadow-lg pointer-events-auto">
+                    しおりを開く
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. MAIN CONTENT (ITINERARY) -->
+    <div id="main-content" class="hidden min-h-screen pb-20">
+        <!-- Header -->
+        <header class="p-4 flex items-center justify-center sticky top-0 z-30 bg-[#FAF9F6]/90 backdrop-blur-sm border-b-2 border-gray-200 border-dashed">
+            <div class="flex items-center gap-2">
+                <h1 class="text-xl font-bold">Surprise Trip</h1>
+                <svg class="w-10 h-10 text-blue-400" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="translate(40, 20)">
+                        <path d="M35 10 C35 10, 25 35, 25 50 C25 70, 10 80, 10 110 C10 145, 30 160, 60 160 C90 160, 110 145, 110 110 C110 80, 95 70, 95 50 C95 35, 85 10, 85 10 Z" fill="white" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/>
+                        <ellipse cx="60" cy="10" rx="25" ry="6" fill="white" stroke="currentColor" stroke-width="6"/>
+                        <path d="M14 100 Q60 110 106 100" stroke="currentColor" stroke-width="6" fill="none"/>
+                        <path d="M12 120 Q60 130 108 120" stroke="currentColor" stroke-width="6" fill="none"/>
+                    </g>
+                    <g transform="translate(120, 110)">
+                        <path d="M5 15 C5 40, 20 45, 25 50 L25 55 Q35 58 45 55 L45 50 C50 45, 65 40, 65 15 Z" fill="white" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/>
+                        <ellipse cx="35" cy="15" rx="30" ry="6" fill="#FEFCE8" stroke="currentColor" stroke-width="6"/>
+                    </g>
+                </svg>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <nav class="flex justify-center gap-4 pt-4 px-4 mb-6">
+            <button onclick="switchTab('day1')" id="tab-day1" class="tab-btn active text-lg font-bold">Day 1<br><span class="text-xs font-normal">12/03</span></button>
+            <button onclick="switchTab('day2')" id="tab-day2" class="tab-btn text-lg font-bold">Day 2<br><span class="text-xs font-normal">12/04</span></button>
+            <button onclick="switchTab('memories')" id="tab-memories" class="tab-btn text-lg font-bold">思い出<br><span class="text-xs font-normal">Photo</span></button>
+        </nav>
+
+        <!-- Content Container -->
+        <main class="max-w-md mx-auto px-4 relative">
+            
+            <!-- Day 1 -->
+            <section id="day1-content" class="tab-content">
+                <div class="relative">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-progress" id="progress-day1" style="height: 0;"></div>
+                    <div id="day1-items" class="timeline-items-container"></div>
+                </div>
+            </section>
+
+            <!-- Day 2 -->
+            <section id="day2-content" class="tab-content hidden">
+                <div id="day2-lock" class="hidden text-center py-20">
+                    <i class="ph-duotone ph-lock-key text-6xl text-gray-300 mb-4"></i>
+                    <p class="text-lg">まだ秘密です！<br>1日目の夜をお楽しみに。</p>
+                </div>
+                <div id="day2-list" class="relative">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-progress" id="progress-day2" style="height: 0;"></div>
+                    <div id="day2-items" class="timeline-items-container"></div>
+                </div>
+            </section>
+
+            <!-- Memories -->
+            <section id="memories-content" class="tab-content hidden relative">
+                <!-- Locked State -->
+                <div id="memories-lock" class="absolute inset-0 z-10 flex flex-col items-center justify-center pt-20 h-[50vh]">
+                    <i class="ph-fill ph-lock text-6xl text-[#E63946] mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-2">思い出はまだロック中</h3>
+                    <p>旅行終了の2週間後<br>(2025/12/17) に解禁されます！</p>
+                </div>
+
+                <!-- Unlocked Content -->
+                <div id="memories-gallery" class="filter blur-md opacity-50 pointer-events-none transition-all duration-1000">
+                    <!-- 写真はJSで注入 -->
+                    <div id="memories-container" class="grid grid-cols-2 gap-4"></div>
+                    
+                    <div class="mt-8 text-center">
+                        <a href="./memories.zip" download class="hand-drawn-btn bg-green-500 border-green-700 inline-flex items-center justify-center gap-2 text-white no-underline">
+                            <i class="ph-bold ph-download-simple"></i> 写真一括ダウンロード (ZIP)
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODALS -->
+
+    <!-- Packing List Modal -->
+    <div id="packing-modal" class="fixed inset-0 z-[60] hidden">
+        <div class="modal-backdrop absolute inset-0" onclick="closeModal('packing-modal')"></div>
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 h-[80vh] overflow-y-auto shadow-2xl transition-transform transform translate-y-0">
+            <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6"></div>
+            <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                <i class="ph-duotone ph-suitcase text-[#E63946]"></i> 持ち物リスト
+            </h2>
+            <ul class="space-y-3 text-lg">
+                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>現金・クレカ・キャッシュカード</span></li>
+                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>免許証・保険証・マイナンバーカード</span></li>
+                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>充電器(モバイルバッテリー含む)</span></li>
+                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>着替え (2日分)</span></li>
+                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>部屋着・防寒着</span></li>
+                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>タオル</span></li>
+                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>常備薬（胃腸薬・頭痛薬）</span></li>
+                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>洗面用具</span></li>
+                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>雨具</span></li>
+            </ul>
+            <button onclick="closeModal('packing-modal')" class="mt-8 w-full hand-drawn-btn bg-gray-200 text-gray-800 border-gray-400">閉じる</button>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
+        <div class="modal-backdrop absolute inset-0" onclick="closeModal('detail-modal')"></div>
+        <div class="relative bg-[#FAF9F6] w-full max-w-md hand-drawn-border p-6 shadow-2xl">
+            <button onclick="closeModal('detail-modal')" class="absolute top-2 right-4 text-2xl text-gray-400">&times;</button>
+            
+            <div id="modal-content-area" class="text-center">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        /* * CONFIGURATION & DATA
+         */
+        const DEBUG_MODE = true; 
+        // ★ base64でのマスキングは時間あったら修正！ ★
+        // Dates
+        const UNLOCK_DATE = new Date("2025-12-03T07:20:00");
+        const MEMORY_UNLOCK_DATE = new Date("2025-12-17T00:00:00");
+        
+        // ★ OPENING IMAGE SETTING ★
+        const OPENING_IMAGE_URL = "illustration.jpeg"; 
+
+        // Itinerary Data
+        const DAY1_DATE = "2025-12-03";
+        const DAY2_DATE = "2025-12-04";
+
+        const ITINERARY = {
+            day1: [
+                { 
+                    time: "06:30", 
+                    icon: "ph-users-three", 
+                    title: "横浜駅 集合", 
+                    desc: "みんなでワクワク出発！", 
+                    img: null,
+                    mapUrl: "https://maps.app.goo.gl/spL7HVKSX9sE8E7g7" 
+                },
+                { 
+                    time: "07:52", 
+                    icon: "ph-train", 
+                    title: "東京駅出発", 
+                    desc: "新幹線で快適な移動。", 
+                    img: "Tokyo.jpg",
+                    mapUrl: "https://maps.app.goo.gl/Y1DLXunyXeGxKdbn8" 
+                },
+                { 
+                    time: "09:54", 
+                    icon: "ph-train", 
+                    title: "上越妙高駅到着", 
+                    desc: "寒い！？新潟県に到着！", 
+                    img: "Joetsu.jpg",
+                    mapUrl: "https://maps.app.goo.gl/ey7c3EYfeXrXxQeM9" 
+                },
+                { 
+                    time: "10:00", 
+                    icon: "ph-car", 
+                    title: "レンタカー借りる", 
+                    desc: "安全運転で行きましょう。", 
+                    img: null,
+                    mapUrl: "https://maps.app.goo.gl/feucUq4gfMBUbPcg6" 
+                },
+                { 
+                    time: "11:00", 
+                    icon: "ph-bowl-food", 
+                    title: "昼食", 
+                    desc: "皆ずっと行きたかった！上越家！", 
+                    img: "Joetsuya.jpg",
+                    mapUrl: "https://maps.app.goo.gl/VP81ERcj1fsakhGs6" 
+                },
+                { 
+                    time: "12:00", 
+                    icon: "ph-camera", 
+                    title: "観光スポット①", 
+                    desc: "まずはここから観光スタート！", 
+                    img: "Naenataki.jpg",
+                    mapUrl: "https://maps.app.goo.gl/4wnGBpDCQQUor3SG9" 
+                },
+                { 
+                    time: "15:00", 
+                    icon: "ph-mountains", 
+                    title: "観光スポット②", 
+                    desc: "お酒の試飲あります！", 
+                    img: "Joetsushu.jpg",
+                    mapUrl: "https://maps.app.goo.gl/UEDpYemoFYQHCvC18" 
+                },
+                { 
+                    time: "16:30", 
+                    icon: "ph-tree", 
+                    title: "観光スポット③", 
+                    desc: "あの海を散策！", 
+                    img: "Umi.jpg",
+                    mapUrl: "https://maps.app.goo.gl/wJvhSBzTWQeWUZJ39" 
+                },
+                { 
+                    time: "17:30", 
+                    icon: "ph-house-line", 
+                    title: "ホテル チェックイン", 
+                    desc: "素敵な宿で一休み。", 
+                    img: "Hotel.jpg",
+                    mapUrl: "https://maps.app.goo.gl/Nj3cEwhxrL7jfBfF9" 
+                },
+                { 
+                    time: "19:00", 
+                    icon: "ph-wine", 
+                    title: "夜食", 
+                    desc: "高田駅周辺で飲み会！", 
+                    img: "Takada.jpg",
+                    mapUrl: "https://maps.app.goo.gl/hKJQuqchisoJoyno9" 
+                }
+            ],
+            day2: [
+                { 
+                    time: "09:00", 
+                    icon: "ph-sun", 
+                    title: "ホテル チェックアウト", 
+                    desc: "宿どうでしたか？2日目も楽しみましょう！", 
+                    img: "Hotel.jpg",
+                    mapUrl: "https://maps.app.goo.gl/Nj3cEwhxrL7jfBfF9" 
+                },
+                { 
+                    time: "10:00", 
+                    icon: "ph-flower", 
+                    title: "観光スポット④", 
+                    desc: "朝一番の観光へ。", 
+                    img: "Hoshitoge.jpg",
+                    mapUrl: "https://maps.app.goo.gl/iZG7R2DvvqBEGC7e7" 
+                },
+                { 
+                    time: "11:00", 
+                    icon: "ph-coffee", 
+                    title: "昼食", 
+                    desc: "有名店らしい！お蕎麦！", 
+                    img: "t-souhonten.jpg",
+                    mapUrl: "https://maps.app.goo.gl/g33WYZ8TssqFA1zF8" 
+                },
+                { 
+                    time: "12:30", 
+                    icon: "ph-camera", 
+                    title: "観光スポット⑤", 
+                    desc: "最後の観光スポット。芸術を堪能！", 
+                    img: "MonET.jpg",
+                    mapUrl: "https://maps.app.goo.gl/UGhRxuD4GP4Nbvcn6" 
+                },
+                { 
+                    time: "14:00", 
+                    icon: "ph-drop", 
+                    title: "温泉", 
+                    desc: "旅の疲れを癒やしましょう。", 
+                    img: "Onsen.jpeg",
+                    mapUrl: "https://maps.app.goo.gl/pMpa3VLojmoWfewG7" 
+                },
+                { 
+                    time: "17:30", 
+                    icon: "ph-car", 
+                    title: "レンタカー返却", 
+                    desc: "忘れ物しないように！", 
+                    img: null,
+                    mapUrl: "https://maps.app.goo.gl/feucUq4gfMBUbPcg6" 
+                },
+                { 
+                    time: "18:00", 
+                    icon: "ph-train", 
+                    title: "上越妙高駅出発", 
+                    desc: "楽しめたかな？また来ようね！", 
+                    img: "Joetsu.jpg",
+                    mapUrl: "https://maps.app.goo.gl/ey7c3EYfeXrXxQeM9" 
+                },
+                { 
+                    time: "20:00", 
+                    icon: "ph-flag", 
+                    title: "東京駅到着", 
+                    desc: "ひとまずお疲れ様でした！横浜へ！", 
+                    img: "Tokyo.jpg",
+                    mapUrl: "https://maps.app.goo.gl/Y1DLXunyXeGxKdbn8" 
+                }
+            ]
+        };
+
+        const MEMORIES = [
+            { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+1", msg: "a", rotate: "rotate-2" },
+            { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+2", msg: "b", rotate: "-rotate-2" },
+            { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+3", msg: "c", rotate: "rotate-1" },
+            { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+4", msg: "また行きたいね", rotate: "-rotate-3" }
+        ];
+
+        /*
+         * CORE LOGIC
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            setInterval(updateTimelineStatus, 60000);
+            renderMemories(); 
+        });
+
+        function initApp() {
+            const now = new Date();
+            const isUnlocked = now >= UNLOCK_DATE || DEBUG_MODE;
+
+            if (isUnlocked) {
+                const hasSeenMap = false; 
+                
+                if (!hasSeenMap) {
+                    startOpeningAnimation();
+                } else {
+                    document.getElementById('countdown-overlay').classList.add('hidden');
+                    document.getElementById('main-content').classList.remove('hidden');
+                    document.getElementById('main-content').classList.add('fade-in');
+                    renderItinerary();
+                    checkMemoriesLock();
+                }
+            } else {
+                startCountdown();
+            }
+        }
+
+        /* COUNTDOWN */
+        function startCountdown() {
+            const timerEl = document.getElementById('timer');
+            
+            const interval = setInterval(() => {
+                const now = new Date();
+                const diff = UNLOCK_DATE - now;
+
+                if (diff <= 0) {
+                    clearInterval(interval);
+                    location.reload();
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                timerEl.innerText = `${days}日 ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        /* OPENING ANIMATION (Canvas Version) */
+        function startOpeningAnimation() {
+            const countdown = document.getElementById('countdown-overlay');
+            const openingOverlay = document.getElementById('opening-overlay');
+            
+            countdown.classList.add('fade-out');
+            setTimeout(() => countdown.classList.add('hidden'), 1000);
+
+            openingOverlay.classList.remove('hidden');
+            
+            const canvas = document.getElementById("wave-canvas");
+            const ctx = canvas.getContext("2d");
+            
+            const img = new Image();
+            img.src = OPENING_IMAGE_URL;
+
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                canvas.classList.add('canvas-fade-in');
+
+                let t = 0;
+                let animationFrameId;
+                const startTime = Date.now();
+                const duration = 5500; 
+
+                function animateWave() {
+                    const elapsed = Date.now() - startTime;
+                    t += 0.07;
+                    const waveOffset = (Math.sin(t * 0.3) * 50 + t * 100) % canvas.height;
+
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    for (let y = 0; y < canvas.height; y++) {
+                        const dy = Math.sin((y + t * 10) * 0.07) * 50;
+                        const waveZone = (y + waveOffset) % canvas.height;
+                        const intensity = waveZone < 120 ? (1 - waveZone / 120) : 0;
+                        const shift = dy * intensity;
+
+                        ctx.drawImage(
+                            img,
+                            0, y, canvas.width, 1,
+                            shift, y, canvas.width, 1 
+                        );
+                    }
+
+                    if (elapsed < duration) {
+                        animationFrameId = requestAnimationFrame(animateWave);
+                    } else {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        
+                        setTimeout(() => {
+                            document.getElementById('dest-badge').classList.add('show');
+                            document.getElementById('dest-badge').classList.remove('opacity-0');
+                        }, 300);
+                    }
+                }
+
+                animateWave();
+            };
+            
+            img.onerror = () => {
+                alert("画像の読み込みに失敗しました。ファイル名を確認してください。");
+                document.getElementById('dest-badge').classList.add('show');
+                document.getElementById('dest-badge').classList.remove('opacity-0');
+            };
+        }
+
+        function finishOpeningAnimation() {
+            localStorage.setItem('hasSeenMap', 'true');
+            const openingOverlay = document.getElementById('opening-overlay');
+            const mainContent = document.getElementById('main-content');
+            
+            openingOverlay.style.opacity = '0';
+            setTimeout(() => {
+                openingOverlay.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                mainContent.classList.add('fade-in');
+                renderItinerary();
+                checkMemoriesLock();
+            }, 1000);
+        }
+
+        /* ITINERARY RENDERING */
+        function renderItinerary() {
+            const day1Container = document.getElementById('day1-items');
+            const day2Container = document.getElementById('day2-items');
+            
+            day1Container.innerHTML = ITINERARY.day1.map((item, index) => createCard(item, 'day1', index)).join('');
+            day2Container.innerHTML = ITINERARY.day2.map((item, index) => createCard(item, 'day2', index)).join('');
+            
+            updateTimelineStatus();
+            
+            const now = new Date();
+            const day2Unlock = new Date(DAY2_DATE + "T00:00:00");
+            
+            if (now < day2Unlock && !DEBUG_MODE) {
+                document.getElementById('day2-lock').classList.remove('hidden');
+                document.getElementById('day2-list').classList.add('hidden');
+            } else {
+                document.getElementById('day2-lock').classList.add('hidden');
+                document.getElementById('day2-list').classList.remove('hidden');
+            }
+        }
+
+        function createCard(item, day, index) {
+            return `
+                <div class="timeline-item flex gap-4" data-time="${item.time}" data-day="${day}" onclick="openDetail('${day}', ${index})">
+                    <div class="time-dot"></div>
+                    <div class="hand-drawn-border p-4 w-full relative bg-white">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-bold text-[#E63946] text-lg">${item.time}</span>
+                            <i class="${item.icon} text-2xl text-gray-400"></i>
+                        </div>
+                        <h3 class="font-bold text-xl mb-1">${item.title}</h3>
+                        <p class="text-xs text-gray-400 text-right mt-1">タップして詳細 <i class="ph-bold ph-caret-right"></i></p>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* MEMORY GALLERY RENDERING */
+        function renderMemories() {
+            const container = document.getElementById('memories-container');
+            container.innerHTML = '';
+            
+            MEMORIES.forEach((mem, index) => {
+                const div = document.createElement('div');
+                div.className = `polaroid ${mem.rotate}`;
+                div.onclick = () => openMemory(index);
+                div.innerHTML = `<img src="${mem.img}" alt="memory">`;
+                container.appendChild(div);
+            });
+        }
+
+        /* OPEN MEMORY */
+        function openMemory(index) {
+            const mem = MEMORIES[index];
+            const content = document.getElementById('modal-content-area');
+            content.innerHTML = `
+                <div class="cheki-card mx-auto relative">
+                    <img src="${mem.img}" class="w-full border border-gray-200">
+                    <div class="cheki-text">${mem.msg}</div>
+                </div>
+            `;
+            openModal('detail-modal');
+        }
+
+        /* STATUS UPDATES */
+        function updateTimelineStatus() {
+            const now = new Date();
+            const currentHours = now.getHours();
+            const currentMinutes = now.getMinutes();
+            const currentTimeVal = currentHours * 60 + currentMinutes;
+
+            document.querySelectorAll('.timeline-item').forEach(el => {
+                const timeStr = el.dataset.time; 
+                const [h, m] = timeStr.split(':').map(Number);
+                const itemTimeVal = h * 60 + m;
+
+                el.classList.remove('past', 'current');
+                
+                if (currentTimeVal > itemTimeVal + 60) {
+                    el.classList.add('past');
+                } else if (currentTimeVal >= itemTimeVal && currentTimeVal <= itemTimeVal + 60) {
+                    el.classList.add('current');
+                }
+            });
+
+            const activeTab = document.querySelector('.tab-content:not(.hidden)');
+            if(activeTab) {
+                const currentItem = activeTab.querySelector('.current');
+                const pastItems = activeTab.querySelectorAll('.past');
+                const bar = activeTab.querySelector('.timeline-progress');
+                
+                if (currentItem && bar) {
+                    bar.style.height = (currentItem.offsetTop + 20) + 'px';
+                } else if (pastItems.length > 0 && bar) {
+                    const lastPast = pastItems[pastItems.length - 1];
+                    bar.style.height = (lastPast.offsetTop + 20) + 'px';
+                }
+            }
+        }
+
+        /* MEMORIES TAB */
+        function checkMemoriesLock() {
+            const now = new Date();
+            if (now >= MEMORY_UNLOCK_DATE || DEBUG_MODE) {
+                document.getElementById('memories-lock').classList.add('hidden');
+                const gallery = document.getElementById('memories-gallery');
+                gallery.classList.remove('blur-md', 'opacity-50', 'pointer-events-none');
+            }
+        }
+
+        /* MODAL & UI UTILS */
+        function openModal(id) {
+            const m = document.getElementById(id);
+            m.classList.remove('hidden');
+            if(id === 'packing-modal') {
+                 m.querySelector('div.absolute.bottom-0').classList.add('translate-y-0');
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        /* OPEN DETAIL */
+        function openDetail(day, index) {
+            const item = ITINERARY[day][index];
+            const now = new Date();
+            
+            let eventDateStr = (day === 'day1') ? DAY1_DATE : DAY2_DATE;
+            let eventTime = new Date(`${eventDateStr}T${item.time}:00`);
+            let unlockTime = new Date(eventTime.getTime() - 60 * 60 * 1000);
+
+            if (now < unlockTime && !DEBUG_MODE) {
+                const content = document.getElementById('modal-content-area');
+                content.innerHTML = `
+                    <div class="py-10 text-center">
+                        <i class="ph-duotone ph-lock-key text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-2xl font-bold text-[#E63946] mb-2">まだ秘密です！</h3>
+                        <p class="text-lg text-gray-600">
+                            この予定は<br>
+                            <span class="font-bold text-xl text-[#4A4A4A]">${unlockTime.getHours()}:${String(unlockTime.getMinutes()).padStart(2, '0')}</span><br>
+                            に解禁されます。
+                        </p>
+                        <p class="text-sm text-gray-400 mt-4">（予定時刻の1時間前）</p>
+                    </div>
+                `;
+                openModal('detail-modal');
+                return;
+            }
+
+            // マップリンクの決定
+            const mapLink = item.mapUrl ? item.mapUrl : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('新潟県 ' + item.title)}`;
+
+            const content = document.getElementById('modal-content-area');
+            
+            // 画像のHTML生成（nullチェック）
+            const imgHtml = item.img ? `<div class="polaroid rotate-1 mb-6"><img src="${item.img}" class="w-full"></div>` : '';
+
+            content.innerHTML = `
+                <div class="mb-4">
+                    <i class="${item.icon} text-6xl text-[#E63946] mb-2"></i>
+                    <p class="text-2xl font-bold font-hand text-[#E63946]">${item.time}</p>
+                </div>
+                <h3 class="text-3xl font-bold mb-4 border-b-2 border-dashed border-gray-300 pb-2">${item.title}</h3>
+                
+                ${imgHtml}
+                
+                <p class="text-lg leading-relaxed text-left mb-6 font-bold text-gray-600">
+                    ${item.desc}
+                </p>
+
+                <a href="${mapLink}" target="_blank" 
+                   class="hand-drawn-btn w-full block text-center no-underline">
+                    <i class="ph-bold ph-map-trifold"></i> Googleマップで見る
+                </a>
+            `;
+            
+            openModal('detail-modal');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active');
+                el.classList.remove('text-[#E63946]');
+            });
+            document.getElementById(`${tabName}-content`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            updateTimelineStatus();
+        }
+    </script>
+</body>
+</html>
