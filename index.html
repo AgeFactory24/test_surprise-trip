@@ -2,16 +2,17 @@
 <html lang="ja">
 <head>
     <!-- Google Analytics (GA4) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KDH3F24B76"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', 'G-XXXXXXXXXX');
+      gtag('config', 'G-KDH3F24B76');
     </script>
 
     <meta charset="UTF-8">
+    <!-- 基本的なviewport設定 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- 検索除け -->
@@ -23,7 +24,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Yomogi&display=swap" rel="stylesheet">
     
-    <!-- Tailwind CSS (Utility) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Icons (Phosphor Icons) -->
@@ -37,13 +38,18 @@
             --color-text: #4A4A4A;
             --color-accent: #457B9D;
             --font-hand: 'Yomogi', cursive, sans-serif;
+            /* JSから設定される背景画像URL用の変数定義 */
+            --opening-bg-image: none; 
+            
+            /* 画像の振動レベル設定 (数値が大きいほど激しく揺れる) */
+            --shake-level: 0.8px;
         }
 
         body {
             font-family: var(--font-hand);
             background-color: var(--color-bg);
             color: var(--color-text);
-            /* テクスチャ */
+            /* 画用紙のような微細なテクスチャ */
             background-image: 
                 linear-gradient(90deg, rgba(200,200,200,0.05) 1px, transparent 1px),
                 linear-gradient(rgba(200,200,200,0.05) 1px, transparent 1px);
@@ -75,6 +81,15 @@
         .hand-drawn-btn:hover {
             transform: scale(1.05) rotate(-1deg);
             box-shadow: 2px 4px 0px var(--color-text);
+        }
+        
+        /* オレンジ色のボタン */
+        .btn-orange {
+            background-color: #F4A261;
+            color: white;
+        }
+        .btn-orange:hover {
+            background-color: #E76F51;
         }
 
         /* --- Components --- */
@@ -164,9 +179,15 @@
 
         /* --- Opening Animation Styles --- */
         #opening-overlay {
-            /* ★背景色を #B55C4F に固定 */
-            background-color: #B55C4F; 
+            background-image: var(--opening-bg-image);
+            background-size: cover;
+            background-position: center;
             transition: opacity 1s ease;
+            
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            background-color: #FAF9F6; /* 画像ロード前の背景色 */
         }
         
         /* Canvas自体のフェードイン用 */
@@ -180,14 +201,11 @@
             100% { opacity: 1; }
         }
 
-        /* ★重要: Canvas(画像)のブレンドモード設定 */
+        /* Canvas(画像)のブレンドモード設定 */
         #wave-canvas {
             mix-blend-mode: multiply;
             filter: contrast(1.1); 
-            
-            /* 画像の周囲ぼかし */
-            -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
-            mask-image: radial-gradient(circle, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+            opacity: 0; /* 初期状態を透明にして遅延表示に対応 */
         }
 
         .map-pin {
@@ -199,6 +217,124 @@
             transition: all 0.5s ease;
         }
         .map-pin.show { opacity: 1; transform: translateY(0); }
+
+        /* --- 42枚画像演出用のスタイル --- */
+        #scatter-container {
+            position: fixed;
+            inset: 0;
+            z-index: 25; /* 波紋(z-10)より上、バッジ(z-20と同等以上) */
+            pointer-events: none; /* クリックを邪魔しない */
+            overflow: hidden;
+        }
+
+        /* 画像配置用のラッパー要素 */
+        .scatter-wrapper {
+            position: absolute;
+            /* サイズ定義 */
+            width: 15vw; 
+            max-width: 200px;
+            
+            opacity: 0;
+            
+            /* 出現アニメーション */
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            
+            /* 中心基準で配置するための設定 */
+            transform-origin: center;
+        }
+
+        /* 画像本体（振動アニメーション） */
+        .scatter-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border: none;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        /* スマホ向け最適化 */
+        @media (max-width: 768px) {
+            .scatter-wrapper {
+                width: 18vw;
+                max-width: 120px;
+            }
+        }
+        
+        /* 消えるときのクラス (ラッパーに適用) */
+        .scatter-wrapper.vanishing {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            opacity: 0 !important;
+        }
+
+        /* 上下左右ランダム振動アニメーション (一律制御) */
+        @keyframes random-shake {
+            0%   { transform: translate(0, 0); }
+            10%  { transform: translate(calc(var(--shake-level) * -0.8), calc(var(--shake-level) * 0.5)); }
+            20%  { transform: translate(calc(var(--shake-level) * 0.5),  calc(var(--shake-level) * -0.8)); }
+            30%  { transform: translate(calc(var(--shake-level) * -0.5), calc(var(--shake-level) * -0.5)); }
+            40%  { transform: translate(calc(var(--shake-level) * 0.8),  calc(var(--shake-level) * 0.3)); }
+            50%  { transform: translate(calc(var(--shake-level) * -0.3), calc(var(--shake-level) * 0.8)); }
+            60%  { transform: translate(calc(var(--shake-level) * 0.6),  calc(var(--shake-level) * -0.6)); }
+            70%  { transform: translate(calc(var(--shake-level) * -0.8), calc(var(--shake-level) * 0.5)); }
+            80%  { transform: translate(calc(var(--shake-level) * 0.4),  calc(var(--shake-level) * -0.4)); }
+            90%  { transform: translate(calc(var(--shake-level) * -0.2), calc(var(--shake-level) * 0.2)); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* タイトル・情報表示用 */
+        .sotetsu-trio-title {
+            position: absolute;
+            top: 12%; /* 位置調整 */
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-family: 'Yomogi', cursive;
+            font-weight: bold;
+            font-size: 2.5rem;
+            letter-spacing: 0.1em;
+            color: white;
+            z-index: 20; /* 画像(25)より下 */
+            opacity: 0;
+            transition: opacity 1s ease;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .trip-info-container {
+            position: absolute;
+            bottom: 8%;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 30; /* 情報は一番上 */
+            color: white;
+            font-family: 'Yomogi', cursive;
+            opacity: 0;
+            transition: opacity 1s ease;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            padding: 0 20px;
+        }
+        .trip-info-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        .trip-info-date {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .trip-info-dest {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            opacity: 0; 
+            transform: scale(0.8);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .trip-info-dest.show {
+            opacity: 1;
+            transform: scale(1);
+        }
 
         /* --- Tab System --- */
         .tab-btn {
@@ -239,7 +375,7 @@
         /* チェキ風モーダル内のスタイル */
         .cheki-card {
             background: white;
-            padding: 15px 15px 60px 15px;
+            padding: 15px 15px 60px 15px; /* 下部を広く */
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
             transform: rotate(2deg);
             max-width: 100%;
@@ -254,12 +390,31 @@
             font-size: 1.2rem;
             color: #555;
         }
+
+        /* オープニング画像の表示位置調整 */
+        #opening-image-container {
+            /* 画面中央より少し上(35%くらい)に配置 */
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        /* ヘッダーのリプレイボタン化 */
+        header {
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        header:active {
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body class="text-gray-800">
 
-    <!-- ★ パスワードロック画面 (最前面) -->
-    <div id="password-overlay" class="fixed inset-0 z-[100] bg-[#FAF9F6] flex flex-col items-center justify-center p-4 text-center">
+    <!-- パスワードロック画面 (最前面) -->
+    <div id="password-overlay" class="fixed inset-0 z-[100] bg-[#FAF9F6] flex flex-col items-center justify-center p-4 text-center hidden">
         <div class="max-w-md w-full relative">
             <i class="ph-fill ph-lock-key text-6xl text-[#E63946] mb-4"></i>
             <h2 class="text-2xl font-bold mb-2">合言葉を入力してください</h2>
@@ -276,6 +431,13 @@
                 <i class="ph-bold ph-warning"></i> 違います！
             </p>
         </div>
+    </div>
+
+    <!-- LOADING OVERLAY (画像読み込み用) -->
+    <div id="loading-overlay" class="fixed inset-0 z-[70] bg-[#FAF9F6] flex flex-col items-center justify-center hidden">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#E63946] mb-6"></div>
+        <p class="text-xl font-bold text-[#4A4A4A] animate-pulse">Now Loading...</p>
+        <p class="text-sm text-gray-400 mt-2">思い出を準備中</p>
     </div>
 
     <!-- 1. COUNTDOWN OVERLAY -->
@@ -319,6 +481,12 @@
     <div id="opening-overlay" class="fixed inset-0 z-40 hidden flex items-center justify-center overflow-hidden">
         <div class="relative w-full h-full flex items-center justify-center p-4">
             
+            <!-- 上部タイトル -->
+            <h1 class="sotetsu-trio-title">Sotetsu Trio</h1>
+
+            <!-- 散らばる画像のコンテナ -->
+            <div id="scatter-container"></div>
+
             <!-- Opening Image Container (Center Fixed) -->
             <div id="opening-image-container" class="w-full max-w-md relative z-10 flex justify-center items-center">
                 <!-- 白枠(polaroid)クラスを削除し、透明背景に変更 -->
@@ -328,49 +496,14 @@
                 </div>
             </div>
             
-            <!-- Badge (Initially Hidden) -->
-            <div id="dest-badge" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center opacity-0 transition-opacity duration-500 w-full pointer-events-none">
-                <div class="absolute inset-0 bg-white/60 blur-xl -z-10 scale-150"></div>
+            <!-- 下部情報表示 -->
+            <div id="trip-info" class="trip-info-container">
+                <h2 class="trip-info-title">Birthday Homerun Tour</h2>
+                <p class="trip-info-date">2025.12.3(Wed). & 12.4(Thu)</p>
+                <div id="trip-dest" class="trip-info-dest">新潟県！</div>
                 
-                <!-- ★修正: 徳利とお猪口SVG (Gemini生成・改良版) -->
-                <svg class="w-32 h-32 text-blue-400 animate-bounce mb-4" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- 徳利 -->
-                    <g transform="translate(40, 20)">
-                        <path d="M35 10 
-                                 C35 10, 25 35, 25 50 
-                                 C25 70, 10 80, 10 110 
-                                 C10 145, 30 160, 60 160 
-                                 C90 160, 110 145, 110 110 
-                                 C110 80, 95 70, 95 50 
-                                 C95 35, 85 10, 85 10 
-                                 Z" 
-                              fill="white" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
-                        <ellipse cx="60" cy="10" rx="25" ry="6" fill="white" stroke="currentColor" stroke-width="3"/>
-                        <!-- 模様 -->
-                        <path d="M14 100 Q60 110 106 100" stroke="currentColor" stroke-width="3" fill="none"/>
-                        <path d="M12 120 Q60 130 108 120" stroke="currentColor" stroke-width="3" fill="none"/>
-                    </g>
-                    <!-- お猪口 -->
-                    <g transform="translate(120, 110)">
-                        <path d="M5 15 
-                                 C5 40, 20 45, 25 50 
-                                 L25 55 
-                                 Q35 58 45 55 
-                                 L45 50 
-                                 C50 45, 65 40, 65 15 
-                                 Z" 
-                              fill="white" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
-                        <ellipse cx="35" cy="15" rx="30" ry="6" fill="#FEFCE8" stroke="currentColor" stroke-width="3"/>
-                    </g>
-                </svg>
-                
-                <div class="bg-white px-6 py-4 mt-2 hand-drawn-border text-center shadow-2xl pointer-events-auto">
-                    <p class="text-sm text-gray-500">行き先は...</p>
-                    <!-- ★バレたらどんまい -->
-                    <h2 id="reveal-dest-name" class="text-4xl font-bold text-[#E63946]">新潟県</h2>
-                    <p id="reveal-dest-desc" class="text-sm mt-1">おいしいお米とお酒の旅！</p>
-                </div>
-                <button onclick="finishOpeningAnimation()" class="mt-8 hand-drawn-btn shadow-lg pointer-events-auto">
+                <!-- しおりを開くボタン (オレンジ色) -->
+                <button onclick="finishOpeningAnimation()" class="mt-4 hand-drawn-btn btn-orange shadow-lg pointer-events-auto">
                     しおりを開く
                 </button>
             </div>
@@ -380,21 +513,13 @@
     <!-- 3. MAIN CONTENT (ITINERARY) -->
     <div id="main-content" class="hidden min-h-screen pb-20">
         <!-- Header -->
-        <header class="p-4 flex items-center justify-center sticky top-0 z-30 bg-[#FAF9F6]/90 backdrop-blur-sm border-b-2 border-gray-200 border-dashed">
-            <div class="flex items-center gap-2">
+        <!-- タイトル部分をクリックでアニメーション再再生 (リセット機能) -->
+        <header class="p-4 flex items-center justify-center sticky top-0 z-30 bg-[#FAF9F6]/90 backdrop-blur-sm border-b-2 border-gray-200 border-dashed cursor-pointer"
+                onclick="replayOpeningAnimation()">
+            <div class="flex items-center gap-2 pointer-events-none">
                 <h1 class="text-xl font-bold">Surprise Trip</h1>
-                <svg class="w-10 h-10 text-blue-400" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g transform="translate(40, 20)">
-                        <path d="M35 10 C35 10, 25 35, 25 50 C25 70, 10 80, 10 110 C10 145, 30 160, 60 160 C90 160, 110 145, 110 110 C110 80, 95 70, 95 50 C95 35, 85 10, 85 10 Z" fill="white" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/>
-                        <ellipse cx="60" cy="10" rx="25" ry="6" fill="white" stroke="currentColor" stroke-width="6"/>
-                        <path d="M14 100 Q60 110 106 100" stroke="currentColor" stroke-width="6" fill="none"/>
-                        <path d="M12 120 Q60 130 108 120" stroke="currentColor" stroke-width="6" fill="none"/>
-                    </g>
-                    <g transform="translate(120, 110)">
-                        <path d="M5 15 C5 40, 20 45, 25 50 L25 55 Q35 58 45 55 L45 50 C50 45, 65 40, 65 15 Z" fill="white" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/>
-                        <ellipse cx="35" cy="15" rx="30" ry="6" fill="#FEFCE8" stroke="currentColor" stroke-width="6"/>
-                    </g>
-                </svg>
+                <!-- 高さh-7でテキストサイズに合わせる -->
+                <img src="3.png" alt="icon" class="h-7 w-auto object-contain">
             </div>
         </header>
 
@@ -436,12 +561,12 @@
                 <div id="memories-lock" class="absolute inset-0 z-10 flex flex-col items-center justify-center pt-20 h-[50vh]">
                     <i class="ph-fill ph-lock text-6xl text-[#E63946] mb-4"></i>
                     <h3 class="text-2xl font-bold mb-2">思い出はまだロック中</h3>
-                    <p>旅行終了の2週間後<br>(2025/11/25) に解禁されます！</p>
+                    <p>旅行終了の2週間後<br>(2025/12/17) に解禁されます！</p>
                 </div>
 
                 <!-- Unlocked Content -->
                 <div id="memories-gallery" class="filter blur-md opacity-50 pointer-events-none transition-all duration-1000">
-                    <!-- 写真はJSで注入 -->
+                    <!-- 写真はJSで注入されます -->
                     <div id="memories-container" class="grid grid-cols-2 gap-4"></div>
                     
                     <div class="mt-8 text-center">
@@ -496,21 +621,76 @@
     <script>
         /* * CONFIGURATION & DATA
          */
-        // ★ パスワード設定 (秘匿化)
+        // パスワード設定
         const SITE_PASSWORD_HASH = "MTIwMw==";
-
         const DEBUG_MODE = false; 
         
-        // Dates
-        const UNLOCK_DATE = new Date("2025-11-23T07:20:00");
-        const MEMORY_UNLOCK_DATE = new Date("2025-12-25T00:00:00");
+        // 日時設定
+        const UNLOCK_DATE = new Date("2025-11-25:00:00");
+        const MEMORY_UNLOCK_DATE = new Date("2025-11-26:00:00");
         
-        // ★ OPENING IMAGE SETTING ★
-        const OPENING_IMAGE_URL = "illustration.jpeg"; 
+        // オープニング画像設定
+        const OPENING_IMAGE_URL = "illustration.png"; 
+        const OPENING_BG_IMAGE_URL = "back.PNG";
 
-        // Itinerary Data
-        const DAY1_DATE = "2025-11-23";
-        const DAY2_DATE = "2025-11-24";
+        // 画像リスト（ファイル名、拡大率、位置指定）
+        // src: ファイル名
+        // scale: 表示サイズ倍率 (1.0が基準)
+        // top: 上からの位置 (0〜100%), left: 左からの位置 (0〜100%)
+        // ※ top/left を指定しない場合、自動的に空いている場所に配置。
+        const SCATTER_IMAGES = [
+            // 例: ど真ん中に配置したい場合
+            //{ src: "IMG_6410.png", scale: 3.0, top: 50, left: 50 },
+            // 例: 左上に配置したい場合
+            //{ src: "IMG_6399.png", scale: 3.0, top: 15, left: 10 },
+            
+            // 以下、位置指定なし（自動配置）
+            { src: "IMG_6410.png", scale: 3.0 },
+            { src: "IMG_6399.png", scale: 3.0 },
+            { src: "IMG_6400.png", scale: 3.0 },
+            { src: "IMG_6401.png", scale: 3.0 },
+            { src: "IMG_6402.png", scale: 3.0 },
+            { src: "IMG_6403.png", scale: 3.0 },
+            { src: "IMG_6404.png", scale: 3.0 },
+            { src: "IMG_6405.png", scale: 3.0 },
+            { src: "IMG_6406.png", scale: 3.0 },
+            { src: "IMG_6407.png", scale: 3.0 },
+            { src: "IMG_6408.png", scale: 3.0 },
+            { src: "IMG_6409.png", scale: 3.0 },
+            { src: "IMG_6411.png", scale: 3.0 },
+            { src: "IMG_6412.png", scale: 3.0 },
+            { src: "IMG_6413.png", scale: 3.0 },
+            { src: "IMG_6415.png", scale: 3.0 },
+            { src: "IMG_6416.png", scale: 3.0 },
+            { src: "IMG_6417.png", scale: 3.0 },
+            { src: "IMG_6418.png", scale: 3.0 },
+            { src: "IMG_6419.png", scale: 3.0 },
+            { src: "IMG_6420.png", scale: 3.0 },
+            { src: "IMG_6421.png", scale: 3.0 },
+            { src: "IMG_6422.png", scale: 3.0 },
+            { src: "IMG_6423.png", scale: 3.0 },
+            { src: "IMG_6424.png", scale: 3.0 },
+            { src: "IMG_6425.png", scale: 3.0 },
+            { src: "IMG_6426.png", scale: 3.0 },
+            { src: "IMG_6427.png", scale: 3.0 },
+            { src: "IMG_6428.png", scale: 3.0 },
+            { src: "IMG_6429.png", scale: 3.0 },
+            { src: "IMG_6438.png", scale: 3.0 },
+            { src: "IMG_6439.png", scale: 3.0 },
+            { src: "IMG_6440.png", scale: 3.0 },
+            { src: "IMG_6441.png", scale: 3.0 },
+            { src: "IMG_6442.png", scale: 3.0 },
+            { src: "IMG_6443.png", scale: 3.0 },
+            { src: "IMG_6444.png", scale: 3.0 },
+            { src: "IMG_6445.png", scale: 3.0 },
+            { src: "IMG_6446.png", scale: 3.0 },
+            { src: "IMG_6447.png", scale: 3.0 },
+            { src: "IMG_6448.png", scale: 3.0 },
+            { src: "IMG_6449.png", scale: 3.0 }
+        ];
+
+        const DAY1_DATE = "2025-11-25";
+        const DAY2_DATE = "2025-11-26";
 
         const ITINERARY = {
             day1: [
@@ -557,7 +737,7 @@
                     time: "11:00", 
                     icon: "ph-bowl-food", 
                     title: "昼食", 
-                    desc: "皆ずっと行きたかった！上越家！", 
+                    desc: "皆ずっと行きたかった！", 
                     img: "Joetsuya.jpg",
                     mapUrl: "https://maps.app.goo.gl/VP81ERcj1fsakhGs6",
                     location: "家系ラーメン 上越家"
@@ -575,7 +755,7 @@
                     time: "15:00", 
                     icon: "ph-mountains", 
                     title: "観光スポット②", 
-                    desc: "お酒の試飲あります！", 
+                    desc: "酒蔵見学！（お酒の試飲あります！）", 
                     img: "Joetsushu.jpg",
                     mapUrl: "https://maps.app.goo.gl/UEDpYemoFYQHCvC18",
                     location: "上越酒造"
@@ -616,7 +796,8 @@
                     desc: "宿どうでしたか？2日目も楽しみましょう！", 
                     img: "Hotel.jpg",
                     mapUrl: "https://maps.app.goo.gl/Nj3cEwhxrL7jfBfF9",
-                    location: "神の宮温泉 かわら亭"
+                    location: "神の宮温泉 かわら亭",
+                    unlockTime: "09:00" 
                 },
                 { 
                     time: "10:00", 
@@ -643,7 +824,7 @@
                     desc: "最後の観光スポット。", 
                     img: "MonET.jpg",
                     mapUrl: "https://maps.app.goo.gl/UGhRxuD4GP4Nbvcn6",
-                    location: "MonET（現代美術館）"
+                    location: "清津峡 (MonET)"
                 },
                 { 
                     time: "14:00", 
@@ -670,7 +851,8 @@
                     desc: "楽しめたかな？また来ようね！", 
                     img: "Joetsu.jpg",
                     mapUrl: "https://maps.app.goo.gl/ey7c3EYfeXrXxQeM9",
-                    location: "上越妙高駅"
+                    location: "上越妙高駅",
+                    unlockTime: "18:00" 
                 },
                 { 
                     time: "20:00", 
@@ -679,49 +861,56 @@
                     desc: "ひとまずお疲れ様でした！横浜へ！", 
                     img: "Tokyo.jpg",
                     mapUrl: "https://maps.app.goo.gl/Y1DLXunyXeGxKdbn8",
-                    location: "東京駅"
+                    location: "東京駅",
+                    unlockTime: "20:00" 
                 }
             ]
         };
 
         const MEMORIES = [
-            { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+1", msg: "a", rotate: "rotate-2" },
-            { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+2", msg: "b", rotate: "-rotate-2" },
-            { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+3", msg: "c", rotate: "rotate-1" },
-            { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+4", msg: "d", rotate: "-rotate-3" }
+            { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+1", msg: "最高の旅の始まり！", rotate: "rotate-2" },
+            { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+2", msg: "美味しかったご飯", rotate: "-rotate-2" },
+            { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+3", msg: "絶景スポットにて", rotate: "rotate-1" },
+            { img: "https://placehold.co/400x300/e0e0e0/888?text=Photo+4", msg: "また行きたいね", rotate: "-rotate-3" }
         ];
 
         /*
          * CORE LOGIC
          */
         document.addEventListener('DOMContentLoaded', () => {
-            // パスワード機能追加のため、initAppは直接呼ばず、checkPassword経由で呼ぶ
-            // initApp(); 
+            // 背景画像セット
+            document.documentElement.style.setProperty('--opening-bg-image', `url('${OPENING_BG_IMAGE_URL}')`);
+            
+            // パスワード認証チェック
+            const isAuth = localStorage.getItem('site_auth_2025');
+            if (isAuth) {
+                // 認証済みならパスワード画面を隠してアプリ開始
+                document.getElementById('password-overlay').classList.add('hidden');
+                initApp();
+            } else {
+                // 未認証ならパスワード画面を表示
+                document.getElementById('password-overlay').classList.remove('hidden');
+            }
+            
             setInterval(updateTimelineStatus, 60000);
             renderMemories(); 
         });
 
-        // ★ パスワードチェック機能 (Base64比較)
+        // Password Check
         function checkPassword() {
             const input = document.getElementById('password-input');
             const errorMsg = document.getElementById('password-error');
             const val = input.value;
             
-            // 入力値をBase64にエンコードして比較
-            // btoaはASCII文字のみ対応。数字のパスワードなら問題なし。
             try {
                 if (btoa(val) === SITE_PASSWORD_HASH) {
-                    // 正解: ロック解除
+                    localStorage.setItem('site_auth_2025', 'true');
                     document.getElementById('password-overlay').classList.add('hidden');
-                    // コンテンツ初期化開始 (カウントダウン表示へ)
-                    // 初期状態ではcountdownはhiddenなので、ここで表示制御を行う
-                    document.getElementById('countdown-overlay').classList.remove('hidden');
-                    initApp(); 
+                    initApp();
                 } else {
                     throw new Error("Incorrect password");
                 }
             } catch (e) {
-                // 不正解またはエラー
                 errorMsg.classList.remove('hidden');
                 input.classList.add('bg-red-100');
                 input.value = '';
@@ -731,7 +920,22 @@
             }
         }
 
-        function initApp() {
+        // 画像プリロード用の関数
+        function preloadImages(imageUrls) {
+            const promises = imageUrls.map(url => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.src = url;
+                    // 成功しても失敗しても次に進むため resolve する
+                    img.onload = resolve;
+                    img.onerror = resolve; 
+                });
+            });
+            return Promise.all(promises);
+        }
+
+        // アプリ初期化 (asyncに変更)
+        async function initApp() {
             const now = new Date();
             const isUnlocked = now >= UNLOCK_DATE || DEBUG_MODE;
 
@@ -739,8 +943,32 @@
                 const hasSeenMap = localStorage.getItem('hasSeenMap'); 
                 
                 if (!hasSeenMap) {
+                    // アニメーション表示ルート
+
+                    // 1. カウントダウン画面を隠す
+                    document.getElementById('countdown-overlay').classList.add('hidden');
+                    
+                    // 2. Loading画面を表示
+                    const loadingOverlay = document.getElementById('loading-overlay');
+                    loadingOverlay.classList.remove('hidden');
+
+                    // 3. 必要な画像をリスト化してプリロード
+                    // (SCATTER_IMAGESはオブジェクトなので .src プロパティを取り出す)
+                    const imagesToLoad = [
+                        OPENING_IMAGE_URL,
+                        OPENING_BG_IMAGE_URL,
+                        ...SCATTER_IMAGES.map(item => item.src)
+                    ];
+
+                    // 4. 全画像の読み込み完了を待機
+                    await preloadImages(imagesToLoad);
+
+                    // 5. Loadingを隠してアニメーション開始
+                    loadingOverlay.classList.add('hidden');
                     startOpeningAnimation();
+
                 } else {
+                    // 通常表示ルート（既読）
                     document.getElementById('countdown-overlay').classList.add('hidden');
                     document.getElementById('main-content').classList.remove('hidden');
                     document.getElementById('main-content').classList.add('fade-in');
@@ -748,8 +976,16 @@
                     checkMemoriesLock();
                 }
             } else {
+                // カウントダウン画面を表示
+                document.getElementById('countdown-overlay').classList.remove('hidden');
                 startCountdown();
             }
+        }
+
+        // リプレイ機能（リロード）
+        function replayOpeningAnimation() {
+            localStorage.removeItem('hasSeenMap'); // 次回アニメーションを表示するため削除
+            location.reload(); // ページリロード
         }
 
         /* COUNTDOWN */
@@ -775,40 +1011,250 @@
             }, 1000);
         }
 
-        /* OPENING ANIMATION (Canvas Version) */
+        /* OPENING ANIMATION */
         function startOpeningAnimation() {
             const countdown = document.getElementById('countdown-overlay');
             const openingOverlay = document.getElementById('opening-overlay');
             
-            countdown.classList.add('fade-out');
-            setTimeout(() => countdown.classList.add('hidden'), 1000);
-
+            // 念の為隠す処理
+            countdown.classList.add('hidden'); 
+            
             openingOverlay.classList.remove('hidden');
             
+            // アニメーション開始までの待機時間（ミリ秒）
+            const startDelay = 1500;
+
+            // 1. Show Title
+            setTimeout(() => {
+                document.querySelector('.sotetsu-trio-title').style.opacity = '1';
+            }, startDelay + 500);
+
+            // 2. Start Canvas Wave Animation (Infinite)
+            setTimeout(() => {
+                startCanvasWave();
+            }, startDelay);
+            
+            // 3. Start 30 Images Scatter Sequence
+            setTimeout(() => {
+                startScatterSequence();
+            }, startDelay);
+        }
+
+        // Helper: Sleep
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        // 42枚の画像アニメーション (グリッドベース配置 + 反時計回り消失)
+        async function startScatterSequence() {
+            const container = document.getElementById('scatter-container');
+            // スマホ対応: clientWidth/Height使用
+            const width = document.documentElement.clientWidth;
+            const height = document.documentElement.clientHeight;
+            const elements = [];
+
+            // 3秒待機
+            await sleep(3000);
+
+            // レスポンシブ対応: 画面幅に応じて列数を変更
+            const isMobile = width < 768;
+            let cols, rows;
+
+            if (isMobile) {
+                // スマホ: 4列
+                cols = 4;
+                rows = Math.ceil(SCATTER_IMAGES.length / cols);
+            } else {
+                // PC: 6列
+                cols = 6;
+                rows = Math.ceil(SCATTER_IMAGES.length / cols);
+            }
+
+            // 画面端での見切れを防ぐため、有効エリア(Available Area)を定義
+            // 画面の上下左右に余白(マージン)を持たせ、その内側でグリッド計算を行う
+            const marginX = width * 0.08;  // 左右に8%ずつの余白
+            const marginY = height * 0.12; // 上下に12%ずつの余白 (タイトルや下部情報との被り防止含む)
+
+            const availableWidth = width - (marginX * 2);
+            const availableHeight = height - (marginY * 2);
+
+            const cellW = availableWidth / cols;
+            const cellH = availableHeight / rows;
+            
+            const gridPositions = [];
+            for(let r=0; r<rows; r++) {
+                for(let c=0; c<cols; c++) {
+                    gridPositions.push({r, c});
+                }
+            }
+            // シャッフル
+            for(let i = gridPositions.length - 1; i > 0; i--){
+                const j = Math.floor(Math.random() * (i + 1));
+                [gridPositions[i], gridPositions[j]] = [gridPositions[j], gridPositions[i]];
+            }
+
+            // グリッド位置の使用カウンター
+            let gridIndex = 0;
+
+            // 1. 1枚ずつ出現
+            for (let i = 0; i < SCATTER_IMAGES.length; i++) {
+                const itemData = SCATTER_IMAGES[i]; // データ取得
+                
+                // ラッパー要素を作成
+                const wrapper = document.createElement('div');
+                wrapper.className = 'scatter-wrapper';
+
+                const img = document.createElement('img');
+                img.src = itemData.src; // src設定
+                img.className = 'scatter-img'; // アニメーション用クラス
+                
+                wrapper.appendChild(img);
+
+                // サイズ設定
+                // スマホの場合は少し控えめにスケール補正
+                const mobileScaleAdj = isMobile ? 0.85 : 1.0;
+                const scale = itemData.scale * mobileScaleAdj;
+
+                let targetX, targetY;
+
+                // 配置ロジックの分岐
+                // top, left の指定がある場合はその座標(%)を使用
+                if (itemData.top !== undefined && itemData.left !== undefined) {
+                    targetX = width * (itemData.left / 100);
+                    targetY = height * (itemData.top / 100);
+                } 
+                // 指定がない場合は、自動グリッド計算を使用
+                else {
+                    if (gridIndex < gridPositions.length) {
+                        const pos = gridPositions[gridIndex];
+                        gridIndex++; // 次のグリッドへ進める
+
+                        // マージン分を足した位置からスタート
+                        const centerX = marginX + (pos.c * cellW) + (cellW / 2);
+                        const centerY = marginY + (pos.r * cellH) + (cellH / 2);
+                        
+                        // ズレ幅はセルサイズの30%程度に抑える
+                        const randomX = (Math.random() - 0.5) * (cellW * 0.6);
+                        const randomY = (Math.random() - 0.5) * (cellH * 0.6);
+
+                        targetX = centerX + randomX;
+                        targetY = centerY + randomY;
+                    } else {
+                        // 万が一グリッドが足りなくなった場合（通常はない）は中央へ
+                        targetX = width / 2;
+                        targetY = height / 2;
+                    }
+                }
+
+                wrapper.style.left = `${targetX}px`;
+                wrapper.style.top = `${targetY}px`;
+                
+                // 親要素(wrapper)に位置補正とスケールを適用
+                // translate(-50%, -50%) で画像の中心を座標に合わせる
+                wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`; 
+
+                // アニメーション用の微振動は子要素(img)に適用
+                // ふよふよ(float-shake)ではなく、ランダム振動(random-shake)に変更
+                // 開始タイミングをランダムにずらす
+                img.style.animation = `random-shake 2s linear infinite -${Math.random() * 2}s`;
+
+                container.appendChild(wrapper);
+                // elementsにはwrapperを追加する (消去処理のため)
+                elements.push({ el: wrapper, scale: scale });
+
+                requestAnimationFrame(() => wrapper.style.opacity = '1');
+                
+                await sleep(200);
+            }
+
+            // 2. 42枚出揃ったら5秒キープ
+            await sleep(5000);
+
+            // 3. 中心からの角度で反時計回りに削除
+            // 目標: 上(12時)からスタートして、左(9時) → 下(6時) → 右(3時) の順（反時計回り）
+            const cx = width / 2;
+            const cy = height / 2;
+
+            elements.forEach(item => {
+                const el = item.el;
+                const rect = el.getBoundingClientRect();
+                const ex = rect.left + rect.width / 2;
+                const ey = rect.top + rect.height / 2;
+                
+                const dx = ex - cx;
+                const dy = ey - cy;
+
+                // 通常の角度 (-PI ~ PI) : 右=0, 下=PI/2, 左=PI/-PI, 上=-PI/2
+                let rad = Math.atan2(dy, dx);
+
+                // 1. 上(-PI/2)を 0 にするために PI/2 を足す
+                //    → 上=0, 右=PI/2, 下=PI, 左=-PI/2(または3PI/2)
+                rad += Math.PI / 2;
+
+                // 2. 反時計回りにしたいので符号を反転させる
+                //    → 上=0, 右=-PI/2, 下=-PI, 左=PI/2
+                rad = -rad;
+
+                // 3. マイナス値を正の数(0~2PI)に正規化
+                if (rad < 0) {
+                    rad += 2 * Math.PI;
+                }
+                
+                // 結果: 上(0) → 左(PI/2) → 下(PI) → 右(3PI/2)
+                item._angle = rad;
+            });
+
+            // 角度が小さい順（0に近い順＝上からスタート）にソート
+            elements.sort((a, b) => a._angle - b._angle);
+
+            // 順番に消去 (帯のように高速で)
+            for (const item of elements) {
+                // wrapperにクラスを追加して消去
+                item.el.classList.add('vanishing'); 
+                await sleep(30); 
+            }
+
+            await sleep(500);
+            container.innerHTML = ''; 
+
+            // 4. 下部の情報表示開始
+            showTripInfo();
+        }
+
+        function showTripInfo() {
+            const infoContainer = document.getElementById('trip-info');
+            const destText = document.getElementById('trip-dest');
+            
+            // 情報コンテナを表示
+            infoContainer.style.opacity = '1';
+
+            // 少し遅れて行き先を表示
+            setTimeout(() => {
+                destText.classList.add('show');
+            }, 2000); 
+        }
+
+        // 背景波紋アニメーション
+        function startCanvasWave() {
             const canvas = document.getElementById("wave-canvas");
             const ctx = canvas.getContext("2d");
-            
             const img = new Image();
             img.src = OPENING_IMAGE_URL;
 
-            img.onload = () => {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                
+            // 既にプリロード済みなので onload は即発火するはずですが、念の為既存ロジックも残す
+            if (img.complete) {
+                initWave(img);
+            } else {
+                img.onload = () => initWave(img);
+            }
+
+            function initWave(image) {
+                canvas.width = image.width;
+                canvas.height = image.height;
                 canvas.classList.add('canvas-fade-in');
 
                 let t = 0;
-                let animationFrameId;
-                const startTime = Date.now();
-                const duration = 4000; 
-
                 function animateWave() {
-                    const elapsed = Date.now() - startTime;
-                    
                     t += 0.05;
-
                     const waveOffset = (Math.sin(t * 0.3) * 50 + t * 100) % canvas.height;
-
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                     for (let y = 0; y < canvas.height; y++) {
@@ -816,38 +1262,12 @@
                         const waveZone = (y + waveOffset) % canvas.height;
                         const intensity = waveZone < 120 ? (1 - waveZone / 120) : 0;
                         const shift = dy * intensity;
-
-                        ctx.drawImage(
-                            img,
-                            0, y, canvas.width, 1,
-                            shift, y, canvas.width, 1 
-                        );
+                        ctx.drawImage(image, 0, y, canvas.width, 1, shift, y, canvas.width, 1);
                     }
-
-                    if (elapsed < duration) {
-                        animationFrameId = requestAnimationFrame(animateWave);
-                    } else {
-                        // アニメーション終了
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        
-                        // ★ここで発表までの「間」を調整
-                        setTimeout(() => {
-                            document.getElementById('dest-badge').classList.add('show');
-                            document.getElementById('dest-badge').classList.remove('opacity-0');
-                        }, 2000);
-                    }
+                    requestAnimationFrame(animateWave);
                 }
-
                 animateWave();
-            };
-            
-            img.onerror = () => {
-                alert("画像の読み込みに失敗しました。ファイル名を確認してください。");
-                // エラー時もテキスト書き換え処理は不要
-                document.getElementById('dest-badge').classList.add('show');
-                document.getElementById('dest-badge').classList.remove('opacity-0');
-            };
+            }
         }
 
         function finishOpeningAnimation() {
@@ -873,12 +1293,27 @@
             day1Container.innerHTML = ITINERARY.day1.map((item, index) => createCard(item, 'day1', index)).join('');
             day2Container.innerHTML = ITINERARY.day2.map((item, index) => createCard(item, 'day2', index)).join('');
             
+            // 日付に応じた自動タブ切り替え
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+
+            // 初期表示タブの決定 (12/4ならDay2、それ以外はDay1)
+            // ※ すでにユーザーが操作している場合などを考慮し、初回ロード時のみ効くようにしたいが、
+            // ここではシンプルに renderItinerary が呼ばれるタイミング(初期化時)で判定する
+            if (todayStr === DAY2_DATE) {
+                switchTab('day2');
+            } else {
+                switchTab('day1');
+            }
+            
+            // updateTimelineStatusはswitchTabの中で呼ばれるのでここでは削除可だが、念のため呼んでおく
             updateTimelineStatus();
             
-            const now = new Date();
-            // Day 2 Unlock (12/4 00:00)
+            // Day 2 Lock Logic (Day2タブの中身のロック表示制御)
             const day2Unlock = new Date(DAY2_DATE + "T00:00:00");
-            
             if (now < day2Unlock && !DEBUG_MODE) {
                 document.getElementById('day2-lock').classList.remove('hidden');
                 document.getElementById('day2-list').classList.add('hidden');
@@ -932,39 +1367,104 @@
         }
 
         /* STATUS UPDATES */
+        // 進捗線のロジックを「日付・時刻」ベースに完全リニューアル
         function updateTimelineStatus() {
             const now = new Date();
+            
+            // 今日の日付文字列 (YYYY-MM-DD)
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+
+            // 現在の時刻 (分換算)
             const currentHours = now.getHours();
             const currentMinutes = now.getMinutes();
             const currentTimeVal = currentHours * 60 + currentMinutes;
 
-            document.querySelectorAll('.timeline-item').forEach(el => {
+            // 現在アクティブなタブを取得
+            const activeTabId = document.querySelector('.tab-btn.active')?.id;
+            if (!activeTabId) return;
+
+            // タブに対応する日付を取得
+            let targetDateStr = "";
+            let isMemories = false;
+            if (activeTabId === 'tab-day1') targetDateStr = DAY1_DATE;
+            else if (activeTabId === 'tab-day2') targetDateStr = DAY2_DATE;
+            else isMemories = true;
+
+            if (isMemories) return; // 思い出タブ
+
+            const activeSection = document.getElementById(activeTabId.replace('tab-', '') + '-content');
+            const progressBar = activeSection.querySelector('.timeline-progress');
+            const items = activeSection.querySelectorAll('.timeline-item');
+
+            if (!progressBar || items.length === 0) return;
+
+            // --- A. 日付判定 ---
+            
+            // ケース1: まだ来ていない日付 (未来)
+            // -> 進捗ゼロ
+            if (todayStr < targetDateStr) {
+                progressBar.style.height = '0px';
+                items.forEach(el => el.classList.remove('past', 'current'));
+                return;
+            }
+
+            // ケース2: 過ぎ去った日付 (過去)
+            // -> 進捗100% (最後のカードの下まで伸ばす)
+            if (todayStr > targetDateStr) {
+                const lastItem = items[items.length - 1];
+                // 最後のカードの下端 = top位置 + 高さ
+                const fullHeight = lastItem.offsetTop + lastItem.offsetHeight;
+                progressBar.style.height = fullHeight + 'px';
+                
+                items.forEach(el => {
+                    el.classList.add('past');
+                    el.classList.remove('current');
+                });
+                return;
+            }
+
+            // ケース3: 当日 (現在進行形)
+            // -> 時刻に基づいて計算
+            let maxOffset = 0;
+
+            items.forEach((el, index) => {
                 const timeStr = el.dataset.time; 
                 const [h, m] = timeStr.split(':').map(Number);
                 const itemTimeVal = h * 60 + m;
 
                 el.classList.remove('past', 'current');
                 
-                if (currentTimeVal > itemTimeVal + 60) {
-                    el.classList.add('past');
-                } else if (currentTimeVal >= itemTimeVal && currentTimeVal <= itemTimeVal + 60) {
-                    el.classList.add('current');
+                // 予定時刻を過ぎているか？
+                if (currentTimeVal >= itemTimeVal) {
+                    // 1時間以上過ぎたら past扱い、それまでは current扱い
+                    if (currentTimeVal > itemTimeVal + 60) {
+                        el.classList.add('past');
+                    } else {
+                        el.classList.add('current');
+                    }
+
+                    // --- バーの高さ計算 ---
+                    
+                    // 通常は「ドットの位置(+20px)」まで伸ばす
+                    let extendHeight = el.offsetTop + 20;
+
+                    // 最後のプランの場合、かつ開始時刻を過ぎていれば「カードの下端」まで伸ばす
+                    if (index === items.length - 1) {
+                        // 最後のプランに関しては、開始時刻を過ぎたら完了に向かって伸びている表現として下まで伸ばす
+                        extendHeight = el.offsetTop + el.offsetHeight;
+                    }
+
+                    // 進捗バーの高さ更新（より下の要素に合わせて更新）
+                    if (extendHeight > maxOffset) {
+                        maxOffset = extendHeight;
+                    }
                 }
             });
 
-            const activeTab = document.querySelector('.tab-content:not(.hidden)');
-            if(activeTab) {
-                const currentItem = activeTab.querySelector('.current');
-                const pastItems = activeTab.querySelectorAll('.past');
-                const bar = activeTab.querySelector('.timeline-progress');
-                
-                if (currentItem && bar) {
-                    bar.style.height = (currentItem.offsetTop + 20) + 'px';
-                } else if (pastItems.length > 0 && bar) {
-                    const lastPast = pastItems[pastItems.length - 1];
-                    bar.style.height = (lastPast.offsetTop + 20) + 'px';
-                }
-            }
+            progressBar.style.height = maxOffset + 'px';
         }
 
         /* MEMORIES TAB */
@@ -998,7 +1498,7 @@
             let eventDateStr = (day === 'day1') ? DAY1_DATE : DAY2_DATE;
             let eventTime = new Date(`${eventDateStr}T${item.time}:00`);
             
-            // ★修正: unlockTimeの設定がある場合はそれを優先、なければ1時間前
+            // unlockTimeの設定がある場合はそれを優先、なければ1時間前
             let unlockTime;
             if (item.unlockTime) {
                 unlockTime = new Date(`${eventDateStr}T${item.unlockTime}:00`);
@@ -1040,7 +1540,7 @@
                 
                 ${imgHtml}
                 
-                <!-- ★修正: メッセージと行き先を表示するエリア -->
+                <!-- メッセージと行き先を表示するエリア -->
                 <div class="text-left mb-6 bg-white p-4 rounded-lg hand-drawn-border transform -rotate-1">
                     <p class="text-lg leading-relaxed font-bold text-gray-600 mb-4">
                         ${item.desc}
@@ -1074,4 +1574,4 @@
         }
     </script>
 </body>
-</html>
+</html>s
