@@ -18,6 +18,19 @@
     <!-- 検索除け -->
     <meta name="robots" content="noindex, nofollow">
 
+    <!-- ==========================================
+       OGP設定 (LINE等のプレビュー用)
+       ※ 公開するURLが決まったら content="" の中身を書き換えてください
+    =========================================== -->
+    <meta property="og:title" content="Surprise Trip 2025">
+    <meta property="og:description" content="旅のしおり">
+    <meta property="og:type" content="website">
+    <!-- ↓ あなたのサイトのURLに変更してください -->
+    <meta property="og:url" content="https://agefactory24.github.io/test_surprise-trip/">
+    <!-- ↓ 表示させたい画像の絶対パス (https://〜) に変更してください -->
+    <!-- ここではメインのイラストを指定しています -->
+    <meta property="og:image" content="https://agefactory24.github.io/test_surprise-trip/SotetsuTrio.jpg">
+
     <title>Surprise Trip 2025</title>
     <!-- Google Fonts: Yomogi (手書き風) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -282,22 +295,26 @@
             100% { transform: translate(0, 0); }
         }
 
-        /* タイトル・情報表示用 */
+        /* タイトル・情報表示用 (画像に変更) */
         .sotetsu-trio-title {
             position: absolute;
             top: 12%; /* 位置調整 */
             left: 0;
             right: 0;
-            text-align: center;
-            font-family: 'Yomogi', cursive;
-            font-weight: bold;
-            font-size: 2.5rem;
-            letter-spacing: 0.1em;
-            color: white;
+            
+            /* 画像としての中央揃え設定 */
+            margin: 0 auto; 
+            width: 80%;       /* スマホ等で大きすぎないように */
+            max-width: 350px; /* PC等で大きすぎないように */
+            height: auto;
+            display: block;
+
             z-index: 20; /* 画像(25)より下 */
             opacity: 0;
             transition: opacity 1s ease;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            
+            /* テキストシャドウの代わりにドロップシャドウで少し浮き出させる */
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
 
         .trip-info-container {
@@ -482,7 +499,7 @@
         <div class="relative w-full h-full flex items-center justify-center p-4">
             
             <!-- 上部タイトル -->
-            <h1 class="sotetsu-trio-title">Sotetsu Trio</h1>
+            <img src="MySotetsuisBad.PNG" class="sotetsu-trio-title" alt="My Sotetsu is Bad">
 
             <!-- 散らばる画像のコンテナ -->
             <div id="scatter-container"></div>
@@ -519,7 +536,7 @@
             <div class="flex items-center gap-2 pointer-events-none">
                 <h1 class="text-xl font-bold">Surprise Trip</h1>
                 <!-- 高さh-7でテキストサイズに合わせる -->
-                <img src="3.png" alt="icon" class="h-7 w-auto object-contain">
+                <img src="hand_3.png" alt="icon" class="h-7 w-auto object-contain" onerror="this.style.display='none'">
             </div>
         </header>
 
@@ -594,9 +611,9 @@
                 <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>現金・クレカ・キャッシュカード</span></li>
                 <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>免許証・保険証・マイナンバーカード</span></li>
                 <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>充電器(モバイルバッテリー含む)</span></li>
-                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>着替え (2日分)</span></li>
+                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>着替え (1日分)</span></li>
                 <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>部屋着・防寒着</span></li>
-                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>タオル1枚</span></li>
+                <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>バスタオル1枚</span></li>
                 <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>常備薬（胃腸薬・頭痛薬）</span></li>
                 <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>洗面用具</span></li>
                 <li class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 accent-[#E63946]"> <span>雨具</span></li>
@@ -626,11 +643,11 @@
         const DEBUG_MODE = false; 
         
         // 日時設定
-        const UNLOCK_DATE = new Date("2025-11-25T18:40:00");
-        const MEMORY_UNLOCK_DATE = new Date("2025-11-30T00:00:00"); //1217
+        const UNLOCK_DATE = new Date("2025-12-02T07:20:00");
+        const MEMORY_UNLOCK_DATE = new Date("2025-12-17T00:00:00");
         
         // オープニング画像設定
-        const OPENING_IMAGE_URL = "illustration.PNG"; 
+        const OPENING_IMAGE_URL = "illustration.png"; 
         const OPENING_BG_IMAGE_URL = "back.PNG";
 
         // 画像リスト（ファイル名、拡大率、位置指定）
@@ -645,52 +662,51 @@
             //{ src: "IMG_6399.png", scale: 3.0, top: 15, left: 10 },
             
             // 以下、位置指定なし（自動配置）
-            { src: "IMG_6410.png", scale: 3.0 },
-            { src: "IMG_6399.png", scale: 3.0 },
-            { src: "IMG_6400.png", scale: 3.0 },
-            { src: "IMG_6401.png", scale: 3.0 },
-            { src: "IMG_6402.png", scale: 3.0 },
-            { src: "IMG_6403.png", scale: 3.0 },
-            { src: "IMG_6404.png", scale: 3.0 },
-            { src: "IMG_6405.png", scale: 3.0 },
-            { src: "IMG_6406.png", scale: 3.0 },
-            { src: "IMG_6407.png", scale: 3.0 },
-            { src: "IMG_6408.png", scale: 3.0 },
-            { src: "IMG_6409.png", scale: 3.0 },
-            { src: "IMG_6411.png", scale: 3.0 },
-            { src: "IMG_6412.png", scale: 3.0 },
-            { src: "IMG_6413.png", scale: 3.0 },
-            { src: "IMG_6415.png", scale: 3.0 },
-            { src: "IMG_6416.png", scale: 3.0 },
-            { src: "IMG_6417.png", scale: 3.0 },
-            { src: "IMG_6418.png", scale: 3.0 },
-            { src: "IMG_6419.png", scale: 3.0 },
-            { src: "IMG_6420.png", scale: 3.0 },
-            { src: "IMG_6421.png", scale: 3.0 },
-            { src: "IMG_6422.png", scale: 3.0 },
-            { src: "IMG_6423.png", scale: 3.0 },
-            { src: "IMG_6424.png", scale: 3.0 },
-            { src: "IMG_6425.png", scale: 3.0 },
-            { src: "IMG_6426.png", scale: 3.0 },
-            { src: "IMG_6427.png", scale: 3.0 },
-            { src: "IMG_6428.png", scale: 3.0 },
-            { src: "IMG_6429.png", scale: 3.0 },
-            { src: "IMG_6438.png", scale: 3.0 },
-            { src: "IMG_6439.png", scale: 3.0 },
-            { src: "IMG_6440.png", scale: 3.0 },
-            { src: "IMG_6441.png", scale: 3.0 },
-            { src: "IMG_6442.png", scale: 3.0 },
-            { src: "IMG_6443.png", scale: 3.0 },
-            { src: "IMG_6444.png", scale: 3.0 },
-            { src: "IMG_6445.png", scale: 3.0 },
-            { src: "IMG_6446.png", scale: 3.0 },
-            { src: "IMG_6447.png", scale: 3.0 },
-            { src: "IMG_6448.png", scale: 3.0 },
-            { src: "IMG_6449.png", scale: 3.0 }
+            { src: "1.png", scale: 3.0 },
+            { src: "2.png", scale: 3.0 },
+            { src: "3.png", scale: 3.0 },
+            { src: "4.png", scale: 3.0 },
+            { src: "5.png", scale: 3.0 },
+            { src: "6.png", scale: 3.0 },
+            { src: "7.png", scale: 3.0 },
+            { src: "8.png", scale: 3.0 },
+            { src: "9.png", scale: 3.0 },
+            { src: "10.png", scale: 3.0 },
+            { src: "11.png", scale: 3.0 },
+            { src: "12.png", scale: 3.0 },
+            { src: "13.png", scale: 3.0 },
+            { src: "14.png", scale: 3.0 },
+            { src: "15.png", scale: 3.0 },
+            { src: "16.png", scale: 3.0 },
+            { src: "17.png", scale: 3.0 },
+            { src: "18.png", scale: 3.0 },
+            { src: "19.png", scale: 3.0 },
+            { src: "20.png", scale: 3.0 },
+            { src: "21.png", scale: 3.0 },
+            { src: "22.png", scale: 3.0 },
+            { src: "23.png", scale: 3.0 },
+            { src: "24.png", scale: 3.0 },
+            { src: "25.png", scale: 3.0 },
+            { src: "26.png", scale: 3.0 },
+            { src: "27.png", scale: 3.0 },
+            { src: "28.png", scale: 3.0 },
+            { src: "29.png", scale: 3.0 },
+            { src: "30.png", scale: 3.0 },
+            { src: "31.png", scale: 3.0 },
+            { src: "32.png", scale: 3.0 },
+            { src: "33.png", scale: 3.0 },
+            { src: "34.png", scale: 3.0 },
+            { src: "35.png", scale: 3.0 },
+            { src: "36.png", scale: 3.0 },
+            { src: "37.png", scale: 3.0 },
+            { src: "38.png", scale: 3.0 },
+            { src: "39.png", scale: 3.0 },
+            { src: "40.png", scale: 3.0 },
+            { src: "41.png", scale: 3.0 },
+            { src: "42.png", scale: 3.0 }
         ];
-
-        const DAY1_DATE = "2025-11-25";
-        const DAY2_DATE = "2025-11-26";
+        const DAY1_DATE = "2025-12-02";
+        const DAY2_DATE = "2025-12-03";
 
         const ITINERARY = {
             day1: [
@@ -702,42 +718,42 @@
                     img: null,
                     mapUrl: "https://maps.app.goo.gl/spL7HVKSX9sE8E7g7",
                     location: "横浜駅",
-                    unlockTime: "06:00" 
+                    unlockTime: "06:30" 
                 },
                 { 
                     time: "07:52", 
                     icon: "ph-train", 
                     title: "東京駅出発", 
-                    desc: "新幹線で快適な移動。", 
+                    desc: "新幹線で上越へ出発！", 
                     img: "Tokyo.jpg",
                     mapUrl: "https://maps.app.goo.gl/Y1DLXunyXeGxKdbn8",
                     location: "東京駅",
-                    unlockTime: "07:30" 
+                    unlockTime: "06:30" 
                 },
                 { 
                     time: "09:54", 
                     icon: "ph-train", 
                     title: "上越妙高駅到着", 
-                    desc: "寒い！？新潟県に到着！", 
+                    desc: "寒いかな！？新潟県に到着！", 
                     img: "Joetsu.jpg",
                     mapUrl: "https://maps.app.goo.gl/ey7c3EYfeXrXxQeM9",
                     location: "上越妙高駅",
-                    unlockTime: "09:30"
+                    unlockTime: "09:54"
                 },
                 { 
                     time: "10:00", 
                     icon: "ph-car", 
                     title: "レンタカー借りる", 
-                    desc: "安全運転で行きましょう。", 
+                    desc: "安全運転で行きましょう！", 
                     img: null,
-                    mapUrl: "https://maps.app.goo.gl/feucUq4gfMBUbPcg6",
-                    location: "ニコニコレンタカー 上越妙高駅店"
+                    mapUrl: "https://maps.app.goo.gl/dJUJB7tghgsQvjyY8",
+                    location: "タイムズカー 上越妙高駅前"
                 },
                 { 
                     time: "11:00", 
                     icon: "ph-bowl-food", 
                     title: "昼食", 
-                    desc: "皆ずっと行きたかった！", 
+                    desc: "皆大好きラーメン！", 
                     img: "Joetsuya.jpg",
                     mapUrl: "https://maps.app.goo.gl/VP81ERcj1fsakhGs6",
                     location: "家系ラーメン 上越家"
@@ -746,10 +762,10 @@
                     time: "12:00", 
                     icon: "ph-camera", 
                     title: "観光スポット①", 
-                    desc: "まずはここから観光スタート！", 
-                    img: "Naenataki.jpg",
-                    mapUrl: "https://maps.app.goo.gl/4wnGBpDCQQUor3SG9",
-                    location: "苗名滝"
+                    desc: "あのライブハウス、海や公園へ", 
+                    img: "Myhairisbad.JPG",
+                    mapUrl: "https://maps.app.goo.gl/YUBw7nc6T13u1KQ67",
+                    location: "聖地巡礼"
                 },
                 { 
                     time: "15:00", 
@@ -762,21 +778,22 @@
                 },
                 { 
                     time: "16:30", 
-                    icon: "ph-tree", 
-                    title: "観光スポット③", 
-                    desc: "あの海を散策！", 
-                    img: "Umi.jpg",
-                    mapUrl: "https://maps.app.goo.gl/wJvhSBzTWQeWUZJ39",
-                    location: "直江津海水浴場"
-                },
-                { 
-                    time: "17:30", 
                     icon: "ph-house-line", 
                     title: "ホテル チェックイン", 
-                    desc: "素敵な宿で一休み。", 
+                    desc: "素敵な宿で一休み。温泉もあります！", 
                     img: "Hotel.jpg",
                     mapUrl: "https://maps.app.goo.gl/Nj3cEwhxrL7jfBfF9",
                     location: "神の宮温泉 かわら亭"
+                },
+                { 
+                    time: "18:50", 
+                    icon: "ph-car", 
+                    title: "レンタカー返却", 
+                    desc: "忘れ物しないように！", 
+                    img: null,
+                    mapUrl: "https://maps.app.goo.gl/dJUJB7tghgsQvjyY8",
+                    location: "タイムズカー 上越妙高駅前",
+                    unlockTime: "06:30"
                 },
                 { 
                     time: "19:00", 
@@ -790,79 +807,90 @@
             ],
             day2: [
                 { 
-                    time: "09:00", 
+                    time: "08:00", 
+                    icon: "ph-sun", 
+                    title: "朝食", 
+                    desc: "二日酔いは大丈夫か！？しっかり食べよう！", 
+                    img: null,
+                    mapUrl: "https://maps.app.goo.gl/Nj3cEwhxrL7jfBfF9",
+                    location: "神の宮温泉 かわら亭"
+                },
+                { 
+                    time: "09:30", 
                     icon: "ph-sun", 
                     title: "ホテル チェックアウト", 
                     desc: "宿どうでしたか？2日目も楽しみましょう！", 
                     img: "Hotel.jpg",
                     mapUrl: "https://maps.app.goo.gl/Nj3cEwhxrL7jfBfF9",
                     location: "神の宮温泉 かわら亭",
-                    unlockTime: "09:00" 
+                    unlockTime: "09:30" 
                 },
                 { 
-                    time: "10:00", 
-                    icon: "ph-flower", 
-                    title: "観光スポット④", 
-                    desc: "朝一番の観光へ。", 
-                    img: "Hoshitoge.jpg",
-                    mapUrl: "https://maps.app.goo.gl/iZG7R2DvvqBEGC7e7",
-                    location: "星峠の棚田"
-                },
-                { 
-                    time: "11:00", 
-                    icon: "ph-coffee", 
-                    title: "昼食", 
-                    desc: "有名店らしい！お蕎麦！", 
-                    img: "t-souhonten.jpg",
-                    mapUrl: "https://maps.app.goo.gl/g33WYZ8TssqFA1zF8",
-                    location: "小嶋屋総本店"
+                    time: "10:30", 
+                    icon: "ph-train", 
+                    title: "上越妙高駅出発", 
+                    desc: "上越は堪能できたかな？", 
+                    img: "Joetsu.jpg",
+                    mapUrl: "https://maps.app.goo.gl/Y1DLXunyXeGxKdbn8",
+                    location: "上越妙高駅"
                 },
                 { 
                     time: "12:30", 
-                    icon: "ph-camera", 
-                    title: "観光スポット⑤", 
-                    desc: "最後の観光スポット。", 
-                    img: "MonET.jpg",
-                    mapUrl: "https://maps.app.goo.gl/UGhRxuD4GP4Nbvcn6",
-                    location: "清津峡 (MonET)"
+                    icon: "ph-train", 
+                    title: "新潟駅到着", 
+                    desc: "新潟の中心地に到着！", 
+                    img: "Nigata.JPG",
+                    mapUrl: "https://maps.app.goo.gl/cmWnfJx95jwS8C7d9",
+                    location: "新潟駅",
+                    unlockTime: "12:30"
+                },
+                { 
+                    time: "13:00", 
+                    icon: "ph-coffee", 
+                    title: "昼食", 
+                    desc: "新潟の郷土料理を堪能！", 
+                    img: "Soba.JPG",
+                    mapUrl: "https://maps.app.goo.gl/4Tgzpyd3LvtyJcpWA",
+                    location: "長岡小嶋屋 新潟駅前店",
+                    unlockTime: "12:30"
                 },
                 { 
                     time: "14:00", 
-                    icon: "ph-drop", 
-                    title: "温泉", 
-                    desc: "旅の疲れを癒やしましょう。", 
-                    img: "Onsen.jpeg",
-                    mapUrl: "https://maps.app.goo.gl/pMpa3VLojmoWfewG7",
-                    location: "ナステビュウ 湯の山"
+                    icon: "ph-camera", 
+                    title: "観光スポット③", 
+                    desc: "また酒蔵見学！（お酒の試飲あります！）", 
+                    img: "Imayotsukasa.JPG",
+                    mapUrl: "https://maps.app.goo.gl/Ds1bXqwx54Qv7qpJA",
+                    location: "今代司酒造"
                 },
                 { 
-                    time: "17:30", 
-                    icon: "ph-car", 
-                    title: "レンタカー返却", 
-                    desc: "忘れ物しないように！", 
-                    img: null,
-                    mapUrl: "https://maps.app.goo.gl/feucUq4gfMBUbPcg6",
-                    location: "ニコニコレンタカー 上越妙高駅店"
+                    time: "16:00", 
+                    icon: "ph-camera", 
+                    title: "観光スポット④", 
+                    desc: "〆の日本酒で乾杯！お土産もここで！", 
+                    img: "Ponshukan.JPG",
+                    mapUrl: "https://maps.app.goo.gl/aCAVtAUYwB5R2bY6A",
+                    location: "ぽんしゅ館 新潟驛店"
                 },
                 { 
-                    time: "18:00", 
+                    time: "18:18", 
                     icon: "ph-train", 
-                    title: "上越妙高駅出発", 
+                    title: "新潟駅出発", 
                     desc: "楽しめたかな？また来ようね！", 
-                    img: "Joetsu.jpg",
-                    mapUrl: "https://maps.app.goo.gl/ey7c3EYfeXrXxQeM9",
-                    location: "上越妙高駅",
-                    unlockTime: "18:00" 
+                    img: "Nigata.JPG",
+                    mapUrl: "https://maps.app.goo.gl/cmWnfJx95jwS8C7d9",
+                    location: "新潟駅",
+                    unlockTime: "18:18" 
                 },
                 { 
-                    time: "20:00", 
+                    time: "20:12", 
                     icon: "ph-flag", 
                     title: "東京駅到着", 
                     desc: "ひとまずお疲れ様でした！横浜へ！", 
                     img: "Tokyo.jpg",
                     mapUrl: "https://maps.app.goo.gl/Y1DLXunyXeGxKdbn8",
                     location: "東京駅",
-                    unlockTime: "20:00" 
+                    unlockTime: "20:12" 
                 }
             ]
         };
@@ -957,6 +985,7 @@
                     const imagesToLoad = [
                         OPENING_IMAGE_URL,
                         OPENING_BG_IMAGE_URL,
+                        "MySotetsuisBad.PNG",
                         ...SCATTER_IMAGES.map(item => item.src)
                     ];
 
@@ -1024,7 +1053,7 @@
             // アニメーション開始までの待機時間（ミリ秒）
             const startDelay = 1500;
 
-            // 1. Show Title
+            // 1. Show Title (セレクタはクラス名なので変更なしでOK)
             setTimeout(() => {
                 document.querySelector('.sotetsu-trio-title').style.opacity = '1';
             }, startDelay + 500);
