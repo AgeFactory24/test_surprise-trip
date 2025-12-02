@@ -640,10 +640,10 @@
          */
         // パスワード設定
         const SITE_PASSWORD_HASH = "MTIwMw==";
-        const DEBUG_MODE = false; 
+        const DEBUG_MODE = true; 
         
         // 日時設定
-        const UNLOCK_DATE = new Date("2025-12-02T07:20:00");
+        const UNLOCK_DATE = new Date("2025-12-03T07:20:00");
         const MEMORY_UNLOCK_DATE = new Date("2025-12-17T00:00:00");
         
         // オープニング画像設定
@@ -705,8 +705,8 @@
             { src: "41.PNG", scale: 3.0 },
             { src: "42.PNG", scale: 3.0 }
         ];
-        const DAY1_DATE = "2025-12-02";
-        const DAY2_DATE = "2025-12-03";
+        const DAY1_DATE = "2025-12-03";
+        const DAY2_DATE = "2025-12-04";
 
         const ITINERARY = {
             day1: [
@@ -761,11 +761,29 @@
                 { 
                     time: "12:00", 
                     icon: "ph-camera", 
-                    title: "観光スポット①", 
+                    title: "なおえつ海水浴場", 
                     desc: "あのライブハウス、海や公園へ", 
                     img: "Myhairisbad.JPG",
                     mapUrl: "https://maps.app.goo.gl/YUBw7nc6T13u1KQ67",
-                    location: "聖地巡礼"
+                    location: "なおえつ海水浴場"
+                },
+                { 
+                    time: "12:00", 
+                    icon: "ph-camera", 
+                    title: "マクドナルド、ライブハウス", 
+                    desc: "あのライブハウス、海や公園へ", 
+                    img: "Myhairisbad.JPG",
+                    mapUrl: "https://maps.app.goo.gl/kDP7JNo6vUCvgqa57",
+                    location: "マクドナルド 上越高田店"
+                },
+                { 
+                    time: "12:00", 
+                    icon: "ph-camera", 
+                    title: "高田城址公園", 
+                    desc: "14:30までには出発すること！", 
+                    img: "Myhairisbad.JPG",
+                    mapUrl: "https://maps.app.goo.gl/p7UGEhMm3r95pK226",
+                    location: "高田城址公園"
                 },
                 { 
                     time: "15:00", 
@@ -799,10 +817,19 @@
                     time: "19:00", 
                     icon: "ph-wine", 
                     title: "夜食", 
-                    desc: "高田駅周辺で飲み会！", 
+                    desc: "一軒目", 
                     img: "Takada.jpg",
-                    mapUrl: "https://maps.app.goo.gl/hKJQuqchisoJoyno9",
-                    location: "高田駅"
+                    mapUrl: "https://maps.app.goo.gl/TrZqh2cGEZg62MdHA",
+                    location: "酒菜蔵 わのき"
+                },
+                { 
+                    time: "21:00", 
+                    icon: "ph-wine", 
+                    title: "夜食", 
+                    desc: "二軒目", 
+                    img: "Takada.jpg",
+                    mapUrl: "https://maps.app.goo.gl/btScRKkrx2s8VFje9",
+                    location: "まるこ"
                 }
             ],
             day2: [
@@ -829,10 +856,11 @@
                     time: "10:30", 
                     icon: "ph-train", 
                     title: "上越妙高駅出発", 
-                    desc: "上越は堪能できたかな？", 
+                    desc: "10:31発 特急しらゆき1号 1・2番線 4,900円", 
                     img: "Joetsu.jpg",
                     mapUrl: "https://maps.app.goo.gl/Y1DLXunyXeGxKdbn8",
-                    location: "上越妙高駅"
+                    location: "上越妙高駅",
+                    unlockTime: "10:30" 
                 },
                 { 
                     time: "12:30", 
